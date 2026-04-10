@@ -1,0 +1,55 @@
+# --- Package Manager ---
+node_modules
+.pnpm-debug.log
+pnpm-lock.yaml
+
+# --- Next.js & Build Outputs ---
+.next/
+out/
+build/
+dist/
+.turbo/
+
+# --- Prisma & Database ---
+# Ignore the local SQLite file if using SQLite
+*.db
+*.db-journal
+
+# Ignore Prisma migrations if you prefer to keep them environment-specific 
+# (Usually you DO commit migrations, but ignore these temporary files)
+schema.prisma.bak
+
+# --- Environment Variables ---
+# Essential: Never commit your secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# --- Testing & Coverage ---
+coverage/
+.nyc_output/
+*.lcov
+
+# --- OS & IDE Files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# --- Typescript ---
+*.tsbuildinfo
