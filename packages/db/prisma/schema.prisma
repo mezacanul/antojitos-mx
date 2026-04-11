@@ -5,7 +5,7 @@ datasource db {
 }
 
 generator client {
-  provider   = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 generator zod {
@@ -54,12 +54,12 @@ model Tenant {
 
 model Branch {
   // Custom 
-  id          String  @id @default(cuid())
-  internal_id String  @unique
-  name        String
-  address     String?
+  name          String
+  address       String?
+  // internal_code String  @unique
 
   // System 
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
