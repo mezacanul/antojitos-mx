@@ -1,10 +1,13 @@
 {
-  "name": "db",
+  "name": "@antojitos-mx/db",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:gen": "prisma generate && pnpm run build",
+    "db:push": "prisma db push && pnpm run db:gen",
+    "db:migrate": "prisma migrate dev && pnpm run db:gen"
   },
   "keywords": [],
   "author": "",
@@ -12,12 +15,15 @@
   "packageManager": "pnpm@10.32.1",
   "devDependencies": {
     "@types/node": "^20.19.39",
+    "@types/pg": "^8.20.0",
     "dotenv": "^17.4.1",
     "prisma": "^7.7.0",
     "zod-prisma-types": "^3.3.11"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
+    "pg": "^8.20.0",
     "zod": "^4.3.6"
   }
 }
