@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { registerOnboarding } from "../../../services/onboarding.service";
 import { OnboardingDTO } from "@antojitos-mx/shared";
+import { handleZodError } from "@/lib/response";
 
 export async function POST(request: Request) {
   try {
@@ -11,15 +12,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
-    if (error.name === "ZodError") {
-      return NextResponse.json(
-        { error: JSON.parse(error.message) },
-        { status: 400 }
-      );
-    }
-    return NextResponse.json(
-      { error: error.message },
-      { status: 400 }
-    );
+    return handleZodError(error);
   }
 }

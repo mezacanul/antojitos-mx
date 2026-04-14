@@ -1,3 +1,4 @@
+import { authService } from "./auth.service";
 import { prisma } from "@antojitos-mx/db";
 
 // apps/next_api/src/services/onboarding.service.ts
@@ -59,7 +60,12 @@ export const registerOnboarding = async (data: any) => {
         },
       });
 
-      return { business, tenant, user };
+      const session = await authService.signIn(
+        data.email,
+        data.password
+      );
+
+      return { business, tenant, user, session };
     });
 
     return result;
