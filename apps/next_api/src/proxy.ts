@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest) {
   // 2. Double-check the session is active with Supabase
   // This validates the JWT against the Supabase Auth server
   const { user, error } = await authService.getSession();
-  console.log(user, error);
+  // console.log(user, error);
   
 
   // 3. API-only: Return 401 Unauthorized if no valid session

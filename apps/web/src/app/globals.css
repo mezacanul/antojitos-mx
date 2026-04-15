@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  /* --font-name: var(--font-name), sans-serif; */
+}
+
+@layer base {
+  html {
+      /* font-family: var(--font-name); */
+      scroll-behavior: smooth;
+  }
+}
+
+/* Colors */
+@theme {
+  /* --color-base-100: #000000; */
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .px-container {
+    /* @apply px-4 sm:px-6 lg:px-8; */
+  }
+}
+
+/* Text Utilities */
+@layer utilities {
+  .text-1 {
+    /* @apply text-[80px]/[110%] font-extrabold; */
+  }
+}

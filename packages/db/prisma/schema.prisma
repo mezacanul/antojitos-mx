@@ -28,9 +28,13 @@ model Business {
   updatedAt DateTime @updatedAt
 
   // Relations
-  tenants  Tenant[]
-  branches Branch[]
-  products Product[]
+  tenants           Tenant[]
+  branches          Branch[]
+  products          Product[]
+  productCategories ProductCategory[]
+  exchangeRates     ExchangeRate[]
+
+  categories BusinessCategory[] // Implicit many-to-many
 }
 
 model Tenant {
@@ -54,8 +58,8 @@ model Tenant {
 
 model Branch {
   // Custom 
-  name          String
-  address       String?
+  name    String
+  address String?
   // internal_code String  @unique
 
   // System 
@@ -67,10 +71,11 @@ model Branch {
   businessId String
   business   Business @relation(fields: [businessId], references: [id])
 
-  users     User[]
-  products  Product[] // For branch-specific inventory/availability
-  reviews   Reviews[]
-  favorites Favorites[]
+  users         User[]
+  products      Product[] // For branch-specific inventory/availability
+  reviews       Reviews[]
+  favorites     Favorites[]
+  exchangeRates ExchangeRate[]
 }
 
 enum Role {
@@ -119,16 +124,20 @@ model Product {
   name        String
   description String?
   price       Decimal @db.Decimal(10, 2)
+  imageUrl    String?
 
   // Relations
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id])
-  branchId   String?
-  branch     Branch?  @relation(fields: [branchId], references: [id])
+  productCategoryId String?
+  productCategory   ProductCategory? @relation(fields: [productCategoryId], references: [id])
+  businessId        String
+  business          Business         @relation(fields: [businessId], references: [id])
+  branchId          String?
+  branch            Branch?          @relation(fields: [branchId], references: [id])
 
   // Logical deletion for audit trails
   isDeleted Boolean     @default(false)
   favorites Favorites[]
+  prices    Price[]
 }
 
 model Reviews {
@@ -166,4 +175,75 @@ model Favorites {
   // System Relations
   userId String
   user   User   @relation(fields: [userId], references: [id])
+}
+
+enum PriceType {
+  pza
+  gr
+  kg
+  ml
+  lt
+  lb
+  floz
+  oz
+}
+
+// 2. Business Categories (Marketplace level)
+model BusinessCategory {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  businesses  Business[] // Implicit many-to-many
+}
+
+// 3. Product Categories (Merchant level)
+model ProductCategory {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  products Product[]
+
+  @@unique([name, businessId])
+}
+
+// 4. Prices (Linked to Product)
+model Price {
+  id       String    @id @default(uuid())
+  type     PriceType @default(pza)
+  amount   Decimal   @db.Decimal(10, 2)
+  quantity Float     @default(1) // e.g., 500 for "500 gr"
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// 5. Currencies (Global Reference)
+model Currency {
+  id            String         @id @default(uuid())
+  code          String         @unique // e.g., "MXN", "USD"
+  active        Boolean        @default(true)
+  exchangeRates ExchangeRate[]
+}
+
+// 6. Exchange Rates (Scoped to Business/Branch)
+model ExchangeRate {
+  id        String   @id @default(uuid())
+  rate      Decimal  @db.Decimal(10, 4) // e.g., 17.5000
+  updatedAt DateTime @updatedAt
+
+  currencyId String
+  currency   Currency @relation(fields: [currencyId], references: [id])
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  // Optional: Specific rate per branch if needed
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  @@unique([currencyId, businessId, branchId])
 }
