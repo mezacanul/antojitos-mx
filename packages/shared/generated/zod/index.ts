@@ -41,11 +41,21 @@ export const BranchScalarFieldEnumSchema = z.enum(['name','address','id','create
 
 export const UserScalarFieldEnumSchema = z.enum(['id','role','createdAt','updatedAt','email','names','maternal_surname','paternal_surname','tenantId','branchId']);
 
-export const ProductScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','name','description','price','imageUrl','businessId','branchId','isDeleted']);
+export const ProductScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','name','description','price','imageUrl','productCategoryId','businessId','branchId','isDeleted']);
 
 export const ReviewsScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','rating','comment','branchId','userId']);
 
 export const FavoritesScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','type','productId','branchId','userId']);
+
+export const BusinessCategoryScalarFieldEnumSchema = z.enum(['id','name','description']);
+
+export const ProductCategoryScalarFieldEnumSchema = z.enum(['id','name','description','businessId']);
+
+export const PriceScalarFieldEnumSchema = z.enum(['id','type','amount','quantity','productId']);
+
+export const CurrencyScalarFieldEnumSchema = z.enum(['id','code','active']);
+
+export const ExchangeRateScalarFieldEnumSchema = z.enum(['id','rate','updatedAt','currencyId','businessId','branchId']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
 
@@ -60,6 +70,10 @@ export type RoleType = `${z.infer<typeof RoleSchema>}`
 export const FavoriteTypeSchema = z.enum(['BRANCH','PRODUCT']);
 
 export type FavoriteTypeType = `${z.infer<typeof FavoriteTypeSchema>}`
+
+export const PriceTypeSchema = z.enum(['pza','gr','kg','ml','lt','lb','floz','oz']);
+
+export type PriceTypeType = `${z.infer<typeof PriceTypeSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -143,6 +157,7 @@ export const ProductSchema = z.object({
   description: z.string().nullable(),
   price: z.instanceof(Prisma.Decimal, { message: "Field 'price' must be a Decimal. Location: ['Models', 'Product']"}),
   imageUrl: z.string().nullable(),
+  productCategoryId: z.string().nullable(),
   businessId: z.string(),
   branchId: z.string().nullable(),
   isDeleted: z.boolean(),
@@ -183,6 +198,72 @@ export const FavoritesSchema = z.object({
 export type Favorites = z.infer<typeof FavoritesSchema>
 
 /////////////////////////////////////////
+// BUSINESS CATEGORY SCHEMA
+/////////////////////////////////////////
+
+export const BusinessCategorySchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  description: z.string().nullable(),
+})
+
+export type BusinessCategory = z.infer<typeof BusinessCategorySchema>
+
+/////////////////////////////////////////
+// PRODUCT CATEGORY SCHEMA
+/////////////////////////////////////////
+
+export const ProductCategorySchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  description: z.string().nullable(),
+  businessId: z.string(),
+})
+
+export type ProductCategory = z.infer<typeof ProductCategorySchema>
+
+/////////////////////////////////////////
+// PRICE SCHEMA
+/////////////////////////////////////////
+
+export const PriceSchema = z.object({
+  type: PriceTypeSchema,
+  id: z.uuid(),
+  amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Price']"}),
+  quantity: z.number(),
+  productId: z.string(),
+})
+
+export type Price = z.infer<typeof PriceSchema>
+
+/////////////////////////////////////////
+// CURRENCY SCHEMA
+/////////////////////////////////////////
+
+export const CurrencySchema = z.object({
+  id: z.uuid(),
+  code: z.string(),
+  active: z.boolean(),
+})
+
+export type Currency = z.infer<typeof CurrencySchema>
+
+/////////////////////////////////////////
+// EXCHANGE RATE SCHEMA
+/////////////////////////////////////////
+
+export const ExchangeRateSchema = z.object({
+  id: z.uuid(),
+  rate: z.instanceof(Prisma.Decimal, { message: "Field 'rate' must be a Decimal. Location: ['Models', 'ExchangeRate']"}),
+  updatedAt: z.coerce.date(),
+  currencyId: z.string(),
+  businessId: z.string(),
+  branchId: z.string().nullable(),
+})
+
+export type ExchangeRate = z.infer<typeof ExchangeRateSchema>
+
+/////////////////////////////////////////
 // SELECT & INCLUDE
 /////////////////////////////////////////
 
@@ -193,6 +274,9 @@ export const BusinessIncludeSchema: z.ZodType<Prisma.BusinessInclude> = z.object
   tenants: z.union([z.boolean(),z.lazy(() => TenantFindManyArgsSchema)]).optional(),
   branches: z.union([z.boolean(),z.lazy(() => BranchFindManyArgsSchema)]).optional(),
   products: z.union([z.boolean(),z.lazy(() => ProductFindManyArgsSchema)]).optional(),
+  productCategories: z.union([z.boolean(),z.lazy(() => ProductCategoryFindManyArgsSchema)]).optional(),
+  exchangeRates: z.union([z.boolean(),z.lazy(() => ExchangeRateFindManyArgsSchema)]).optional(),
+  categories: z.union([z.boolean(),z.lazy(() => BusinessCategoryFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => BusinessCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -209,6 +293,9 @@ export const BusinessCountOutputTypeSelectSchema: z.ZodType<Prisma.BusinessCount
   tenants: z.boolean().optional(),
   branches: z.boolean().optional(),
   products: z.boolean().optional(),
+  productCategories: z.boolean().optional(),
+  exchangeRates: z.boolean().optional(),
+  categories: z.boolean().optional(),
 }).strict();
 
 export const BusinessSelectSchema: z.ZodType<Prisma.BusinessSelect> = z.object({
@@ -221,6 +308,9 @@ export const BusinessSelectSchema: z.ZodType<Prisma.BusinessSelect> = z.object({
   tenants: z.union([z.boolean(),z.lazy(() => TenantFindManyArgsSchema)]).optional(),
   branches: z.union([z.boolean(),z.lazy(() => BranchFindManyArgsSchema)]).optional(),
   products: z.union([z.boolean(),z.lazy(() => ProductFindManyArgsSchema)]).optional(),
+  productCategories: z.union([z.boolean(),z.lazy(() => ProductCategoryFindManyArgsSchema)]).optional(),
+  exchangeRates: z.union([z.boolean(),z.lazy(() => ExchangeRateFindManyArgsSchema)]).optional(),
+  categories: z.union([z.boolean(),z.lazy(() => BusinessCategoryFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => BusinessCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -269,6 +359,7 @@ export const BranchIncludeSchema: z.ZodType<Prisma.BranchInclude> = z.object({
   products: z.union([z.boolean(),z.lazy(() => ProductFindManyArgsSchema)]).optional(),
   reviews: z.union([z.boolean(),z.lazy(() => ReviewsFindManyArgsSchema)]).optional(),
   favorites: z.union([z.boolean(),z.lazy(() => FavoritesFindManyArgsSchema)]).optional(),
+  exchangeRates: z.union([z.boolean(),z.lazy(() => ExchangeRateFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => BranchCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -286,6 +377,7 @@ export const BranchCountOutputTypeSelectSchema: z.ZodType<Prisma.BranchCountOutp
   products: z.boolean().optional(),
   reviews: z.boolean().optional(),
   favorites: z.boolean().optional(),
+  exchangeRates: z.boolean().optional(),
 }).strict();
 
 export const BranchSelectSchema: z.ZodType<Prisma.BranchSelect> = z.object({
@@ -300,6 +392,7 @@ export const BranchSelectSchema: z.ZodType<Prisma.BranchSelect> = z.object({
   products: z.union([z.boolean(),z.lazy(() => ProductFindManyArgsSchema)]).optional(),
   reviews: z.union([z.boolean(),z.lazy(() => ReviewsFindManyArgsSchema)]).optional(),
   favorites: z.union([z.boolean(),z.lazy(() => FavoritesFindManyArgsSchema)]).optional(),
+  exchangeRates: z.union([z.boolean(),z.lazy(() => ExchangeRateFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => BranchCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -350,9 +443,11 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
 //------------------------------------------------------
 
 export const ProductIncludeSchema: z.ZodType<Prisma.ProductInclude> = z.object({
+  productCategory: z.union([z.boolean(),z.lazy(() => ProductCategoryArgsSchema)]).optional(),
   business: z.union([z.boolean(),z.lazy(() => BusinessArgsSchema)]).optional(),
   branch: z.union([z.boolean(),z.lazy(() => BranchArgsSchema)]).optional(),
   favorites: z.union([z.boolean(),z.lazy(() => FavoritesFindManyArgsSchema)]).optional(),
+  prices: z.union([z.boolean(),z.lazy(() => PriceFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => ProductCountOutputTypeArgsSchema)]).optional(),
 }).strict();
 
@@ -367,6 +462,7 @@ export const ProductCountOutputTypeArgsSchema: z.ZodType<Prisma.ProductCountOutp
 
 export const ProductCountOutputTypeSelectSchema: z.ZodType<Prisma.ProductCountOutputTypeSelect> = z.object({
   favorites: z.boolean().optional(),
+  prices: z.boolean().optional(),
 }).strict();
 
 export const ProductSelectSchema: z.ZodType<Prisma.ProductSelect> = z.object({
@@ -377,12 +473,15 @@ export const ProductSelectSchema: z.ZodType<Prisma.ProductSelect> = z.object({
   description: z.boolean().optional(),
   price: z.boolean().optional(),
   imageUrl: z.boolean().optional(),
+  productCategoryId: z.boolean().optional(),
   businessId: z.boolean().optional(),
   branchId: z.boolean().optional(),
   isDeleted: z.boolean().optional(),
+  productCategory: z.union([z.boolean(),z.lazy(() => ProductCategoryArgsSchema)]).optional(),
   business: z.union([z.boolean(),z.lazy(() => BusinessArgsSchema)]).optional(),
   branch: z.union([z.boolean(),z.lazy(() => BranchArgsSchema)]).optional(),
   favorites: z.union([z.boolean(),z.lazy(() => FavoritesFindManyArgsSchema)]).optional(),
+  prices: z.union([z.boolean(),z.lazy(() => PriceFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => ProductCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -438,6 +537,143 @@ export const FavoritesSelectSchema: z.ZodType<Prisma.FavoritesSelect> = z.object
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
 }).strict()
 
+// BUSINESS CATEGORY
+//------------------------------------------------------
+
+export const BusinessCategoryIncludeSchema: z.ZodType<Prisma.BusinessCategoryInclude> = z.object({
+  businesses: z.union([z.boolean(),z.lazy(() => BusinessFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => BusinessCategoryCountOutputTypeArgsSchema)]).optional(),
+}).strict();
+
+export const BusinessCategoryArgsSchema: z.ZodType<Prisma.BusinessCategoryDefaultArgs> = z.object({
+  select: z.lazy(() => BusinessCategorySelectSchema).optional(),
+  include: z.lazy(() => BusinessCategoryIncludeSchema).optional(),
+}).strict();
+
+export const BusinessCategoryCountOutputTypeArgsSchema: z.ZodType<Prisma.BusinessCategoryCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => BusinessCategoryCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const BusinessCategoryCountOutputTypeSelectSchema: z.ZodType<Prisma.BusinessCategoryCountOutputTypeSelect> = z.object({
+  businesses: z.boolean().optional(),
+}).strict();
+
+export const BusinessCategorySelectSchema: z.ZodType<Prisma.BusinessCategorySelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  description: z.boolean().optional(),
+  businesses: z.union([z.boolean(),z.lazy(() => BusinessFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => BusinessCategoryCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// PRODUCT CATEGORY
+//------------------------------------------------------
+
+export const ProductCategoryIncludeSchema: z.ZodType<Prisma.ProductCategoryInclude> = z.object({
+  business: z.union([z.boolean(),z.lazy(() => BusinessArgsSchema)]).optional(),
+  products: z.union([z.boolean(),z.lazy(() => ProductFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => ProductCategoryCountOutputTypeArgsSchema)]).optional(),
+}).strict();
+
+export const ProductCategoryArgsSchema: z.ZodType<Prisma.ProductCategoryDefaultArgs> = z.object({
+  select: z.lazy(() => ProductCategorySelectSchema).optional(),
+  include: z.lazy(() => ProductCategoryIncludeSchema).optional(),
+}).strict();
+
+export const ProductCategoryCountOutputTypeArgsSchema: z.ZodType<Prisma.ProductCategoryCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => ProductCategoryCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const ProductCategoryCountOutputTypeSelectSchema: z.ZodType<Prisma.ProductCategoryCountOutputTypeSelect> = z.object({
+  products: z.boolean().optional(),
+}).strict();
+
+export const ProductCategorySelectSchema: z.ZodType<Prisma.ProductCategorySelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  description: z.boolean().optional(),
+  businessId: z.boolean().optional(),
+  business: z.union([z.boolean(),z.lazy(() => BusinessArgsSchema)]).optional(),
+  products: z.union([z.boolean(),z.lazy(() => ProductFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => ProductCategoryCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// PRICE
+//------------------------------------------------------
+
+export const PriceIncludeSchema: z.ZodType<Prisma.PriceInclude> = z.object({
+  product: z.union([z.boolean(),z.lazy(() => ProductArgsSchema)]).optional(),
+}).strict();
+
+export const PriceArgsSchema: z.ZodType<Prisma.PriceDefaultArgs> = z.object({
+  select: z.lazy(() => PriceSelectSchema).optional(),
+  include: z.lazy(() => PriceIncludeSchema).optional(),
+}).strict();
+
+export const PriceSelectSchema: z.ZodType<Prisma.PriceSelect> = z.object({
+  id: z.boolean().optional(),
+  type: z.boolean().optional(),
+  amount: z.boolean().optional(),
+  quantity: z.boolean().optional(),
+  productId: z.boolean().optional(),
+  product: z.union([z.boolean(),z.lazy(() => ProductArgsSchema)]).optional(),
+}).strict()
+
+// CURRENCY
+//------------------------------------------------------
+
+export const CurrencyIncludeSchema: z.ZodType<Prisma.CurrencyInclude> = z.object({
+  exchangeRates: z.union([z.boolean(),z.lazy(() => ExchangeRateFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => CurrencyCountOutputTypeArgsSchema)]).optional(),
+}).strict();
+
+export const CurrencyArgsSchema: z.ZodType<Prisma.CurrencyDefaultArgs> = z.object({
+  select: z.lazy(() => CurrencySelectSchema).optional(),
+  include: z.lazy(() => CurrencyIncludeSchema).optional(),
+}).strict();
+
+export const CurrencyCountOutputTypeArgsSchema: z.ZodType<Prisma.CurrencyCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => CurrencyCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const CurrencyCountOutputTypeSelectSchema: z.ZodType<Prisma.CurrencyCountOutputTypeSelect> = z.object({
+  exchangeRates: z.boolean().optional(),
+}).strict();
+
+export const CurrencySelectSchema: z.ZodType<Prisma.CurrencySelect> = z.object({
+  id: z.boolean().optional(),
+  code: z.boolean().optional(),
+  active: z.boolean().optional(),
+  exchangeRates: z.union([z.boolean(),z.lazy(() => ExchangeRateFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => CurrencyCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// EXCHANGE RATE
+//------------------------------------------------------
+
+export const ExchangeRateIncludeSchema: z.ZodType<Prisma.ExchangeRateInclude> = z.object({
+  currency: z.union([z.boolean(),z.lazy(() => CurrencyArgsSchema)]).optional(),
+  business: z.union([z.boolean(),z.lazy(() => BusinessArgsSchema)]).optional(),
+  branch: z.union([z.boolean(),z.lazy(() => BranchArgsSchema)]).optional(),
+}).strict();
+
+export const ExchangeRateArgsSchema: z.ZodType<Prisma.ExchangeRateDefaultArgs> = z.object({
+  select: z.lazy(() => ExchangeRateSelectSchema).optional(),
+  include: z.lazy(() => ExchangeRateIncludeSchema).optional(),
+}).strict();
+
+export const ExchangeRateSelectSchema: z.ZodType<Prisma.ExchangeRateSelect> = z.object({
+  id: z.boolean().optional(),
+  rate: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  currencyId: z.boolean().optional(),
+  businessId: z.boolean().optional(),
+  branchId: z.boolean().optional(),
+  currency: z.union([z.boolean(),z.lazy(() => CurrencyArgsSchema)]).optional(),
+  business: z.union([z.boolean(),z.lazy(() => BusinessArgsSchema)]).optional(),
+  branch: z.union([z.boolean(),z.lazy(() => BranchArgsSchema)]).optional(),
+}).strict()
+
 
 /////////////////////////////////////////
 // INPUT TYPES
@@ -456,6 +692,9 @@ export const BusinessWhereInputSchema: z.ZodType<Prisma.BusinessWhereInput> = z.
   tenants: z.lazy(() => TenantListRelationFilterSchema).optional(),
   branches: z.lazy(() => BranchListRelationFilterSchema).optional(),
   products: z.lazy(() => ProductListRelationFilterSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryListRelationFilterSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateListRelationFilterSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryListRelationFilterSchema).optional(),
 });
 
 export const BusinessOrderByWithRelationInputSchema: z.ZodType<Prisma.BusinessOrderByWithRelationInput> = z.strictObject({
@@ -468,6 +707,9 @@ export const BusinessOrderByWithRelationInputSchema: z.ZodType<Prisma.BusinessOr
   tenants: z.lazy(() => TenantOrderByRelationAggregateInputSchema).optional(),
   branches: z.lazy(() => BranchOrderByRelationAggregateInputSchema).optional(),
   products: z.lazy(() => ProductOrderByRelationAggregateInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryOrderByRelationAggregateInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateOrderByRelationAggregateInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryOrderByRelationAggregateInputSchema).optional(),
 });
 
 export const BusinessWhereUniqueInputSchema: z.ZodType<Prisma.BusinessWhereUniqueInput> = z.union([
@@ -511,6 +753,9 @@ export const BusinessWhereUniqueInputSchema: z.ZodType<Prisma.BusinessWhereUniqu
   tenants: z.lazy(() => TenantListRelationFilterSchema).optional(),
   branches: z.lazy(() => BranchListRelationFilterSchema).optional(),
   products: z.lazy(() => ProductListRelationFilterSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryListRelationFilterSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateListRelationFilterSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryListRelationFilterSchema).optional(),
 }));
 
 export const BusinessOrderByWithAggregationInputSchema: z.ZodType<Prisma.BusinessOrderByWithAggregationInput> = z.strictObject({
@@ -637,6 +882,7 @@ export const BranchWhereInputSchema: z.ZodType<Prisma.BranchWhereInput> = z.stri
   products: z.lazy(() => ProductListRelationFilterSchema).optional(),
   reviews: z.lazy(() => ReviewsListRelationFilterSchema).optional(),
   favorites: z.lazy(() => FavoritesListRelationFilterSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateListRelationFilterSchema).optional(),
 });
 
 export const BranchOrderByWithRelationInputSchema: z.ZodType<Prisma.BranchOrderByWithRelationInput> = z.strictObject({
@@ -651,6 +897,7 @@ export const BranchOrderByWithRelationInputSchema: z.ZodType<Prisma.BranchOrderB
   products: z.lazy(() => ProductOrderByRelationAggregateInputSchema).optional(),
   reviews: z.lazy(() => ReviewsOrderByRelationAggregateInputSchema).optional(),
   favorites: z.lazy(() => FavoritesOrderByRelationAggregateInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateOrderByRelationAggregateInputSchema).optional(),
 });
 
 export const BranchWhereUniqueInputSchema: z.ZodType<Prisma.BranchWhereUniqueInput> = z.object({
@@ -671,6 +918,7 @@ export const BranchWhereUniqueInputSchema: z.ZodType<Prisma.BranchWhereUniqueInp
   products: z.lazy(() => ProductListRelationFilterSchema).optional(),
   reviews: z.lazy(() => ReviewsListRelationFilterSchema).optional(),
   favorites: z.lazy(() => FavoritesListRelationFilterSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateListRelationFilterSchema).optional(),
 }));
 
 export const BranchOrderByWithAggregationInputSchema: z.ZodType<Prisma.BranchOrderByWithAggregationInput> = z.strictObject({
@@ -809,12 +1057,15 @@ export const ProductWhereInputSchema: z.ZodType<Prisma.ProductWhereInput> = z.st
   description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  productCategoryId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   branchId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   isDeleted: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
+  productCategory: z.union([ z.lazy(() => ProductCategoryNullableScalarRelationFilterSchema), z.lazy(() => ProductCategoryWhereInputSchema) ]).optional().nullable(),
   business: z.union([ z.lazy(() => BusinessScalarRelationFilterSchema), z.lazy(() => BusinessWhereInputSchema) ]).optional(),
   branch: z.union([ z.lazy(() => BranchNullableScalarRelationFilterSchema), z.lazy(() => BranchWhereInputSchema) ]).optional().nullable(),
   favorites: z.lazy(() => FavoritesListRelationFilterSchema).optional(),
+  prices: z.lazy(() => PriceListRelationFilterSchema).optional(),
 });
 
 export const ProductOrderByWithRelationInputSchema: z.ZodType<Prisma.ProductOrderByWithRelationInput> = z.strictObject({
@@ -825,12 +1076,15 @@ export const ProductOrderByWithRelationInputSchema: z.ZodType<Prisma.ProductOrde
   description: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   imageUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  productCategoryId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   businessId: z.lazy(() => SortOrderSchema).optional(),
   branchId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   isDeleted: z.lazy(() => SortOrderSchema).optional(),
+  productCategory: z.lazy(() => ProductCategoryOrderByWithRelationInputSchema).optional(),
   business: z.lazy(() => BusinessOrderByWithRelationInputSchema).optional(),
   branch: z.lazy(() => BranchOrderByWithRelationInputSchema).optional(),
   favorites: z.lazy(() => FavoritesOrderByRelationAggregateInputSchema).optional(),
+  prices: z.lazy(() => PriceOrderByRelationAggregateInputSchema).optional(),
 });
 
 export const ProductWhereUniqueInputSchema: z.ZodType<Prisma.ProductWhereUniqueInput> = z.object({
@@ -847,12 +1101,15 @@ export const ProductWhereUniqueInputSchema: z.ZodType<Prisma.ProductWhereUniqueI
   description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  productCategoryId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   branchId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   isDeleted: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
+  productCategory: z.union([ z.lazy(() => ProductCategoryNullableScalarRelationFilterSchema), z.lazy(() => ProductCategoryWhereInputSchema) ]).optional().nullable(),
   business: z.union([ z.lazy(() => BusinessScalarRelationFilterSchema), z.lazy(() => BusinessWhereInputSchema) ]).optional(),
   branch: z.union([ z.lazy(() => BranchNullableScalarRelationFilterSchema), z.lazy(() => BranchWhereInputSchema) ]).optional().nullable(),
   favorites: z.lazy(() => FavoritesListRelationFilterSchema).optional(),
+  prices: z.lazy(() => PriceListRelationFilterSchema).optional(),
 }));
 
 export const ProductOrderByWithAggregationInputSchema: z.ZodType<Prisma.ProductOrderByWithAggregationInput> = z.strictObject({
@@ -863,6 +1120,7 @@ export const ProductOrderByWithAggregationInputSchema: z.ZodType<Prisma.ProductO
   description: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   imageUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  productCategoryId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   businessId: z.lazy(() => SortOrderSchema).optional(),
   branchId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   isDeleted: z.lazy(() => SortOrderSchema).optional(),
@@ -884,6 +1142,7 @@ export const ProductScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Produ
   description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalWithAggregatesFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
+  productCategoryId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   businessId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   branchId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   isDeleted: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean() ]).optional(),
@@ -1036,6 +1295,327 @@ export const FavoritesScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Fav
   userId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
 });
 
+export const BusinessCategoryWhereInputSchema: z.ZodType<Prisma.BusinessCategoryWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => BusinessCategoryWhereInputSchema), z.lazy(() => BusinessCategoryWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => BusinessCategoryWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => BusinessCategoryWhereInputSchema), z.lazy(() => BusinessCategoryWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  businesses: z.lazy(() => BusinessListRelationFilterSchema).optional(),
+});
+
+export const BusinessCategoryOrderByWithRelationInputSchema: z.ZodType<Prisma.BusinessCategoryOrderByWithRelationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  businesses: z.lazy(() => BusinessOrderByRelationAggregateInputSchema).optional(),
+});
+
+export const BusinessCategoryWhereUniqueInputSchema: z.ZodType<Prisma.BusinessCategoryWhereUniqueInput> = z.union([
+  z.object({
+    id: z.uuid(),
+    name: z.string(),
+  }),
+  z.object({
+    id: z.uuid(),
+  }),
+  z.object({
+    name: z.string(),
+  }),
+])
+.and(z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string().optional(),
+  AND: z.union([ z.lazy(() => BusinessCategoryWhereInputSchema), z.lazy(() => BusinessCategoryWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => BusinessCategoryWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => BusinessCategoryWhereInputSchema), z.lazy(() => BusinessCategoryWhereInputSchema).array() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  businesses: z.lazy(() => BusinessListRelationFilterSchema).optional(),
+}));
+
+export const BusinessCategoryOrderByWithAggregationInputSchema: z.ZodType<Prisma.BusinessCategoryOrderByWithAggregationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  _count: z.lazy(() => BusinessCategoryCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => BusinessCategoryMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => BusinessCategoryMinOrderByAggregateInputSchema).optional(),
+});
+
+export const BusinessCategoryScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.BusinessCategoryScalarWhereWithAggregatesInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => BusinessCategoryScalarWhereWithAggregatesInputSchema), z.lazy(() => BusinessCategoryScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => BusinessCategoryScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => BusinessCategoryScalarWhereWithAggregatesInputSchema), z.lazy(() => BusinessCategoryScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
+});
+
+export const ProductCategoryWhereInputSchema: z.ZodType<Prisma.ProductCategoryWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => ProductCategoryWhereInputSchema), z.lazy(() => ProductCategoryWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ProductCategoryWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ProductCategoryWhereInputSchema), z.lazy(() => ProductCategoryWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  business: z.union([ z.lazy(() => BusinessScalarRelationFilterSchema), z.lazy(() => BusinessWhereInputSchema) ]).optional(),
+  products: z.lazy(() => ProductListRelationFilterSchema).optional(),
+});
+
+export const ProductCategoryOrderByWithRelationInputSchema: z.ZodType<Prisma.ProductCategoryOrderByWithRelationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  business: z.lazy(() => BusinessOrderByWithRelationInputSchema).optional(),
+  products: z.lazy(() => ProductOrderByRelationAggregateInputSchema).optional(),
+});
+
+export const ProductCategoryWhereUniqueInputSchema: z.ZodType<Prisma.ProductCategoryWhereUniqueInput> = z.union([
+  z.object({
+    id: z.uuid(),
+    name_businessId: z.lazy(() => ProductCategoryNameBusinessIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    id: z.uuid(),
+  }),
+  z.object({
+    name_businessId: z.lazy(() => ProductCategoryNameBusinessIdCompoundUniqueInputSchema),
+  }),
+])
+.and(z.strictObject({
+  id: z.uuid().optional(),
+  name_businessId: z.lazy(() => ProductCategoryNameBusinessIdCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => ProductCategoryWhereInputSchema), z.lazy(() => ProductCategoryWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ProductCategoryWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ProductCategoryWhereInputSchema), z.lazy(() => ProductCategoryWhereInputSchema).array() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  business: z.union([ z.lazy(() => BusinessScalarRelationFilterSchema), z.lazy(() => BusinessWhereInputSchema) ]).optional(),
+  products: z.lazy(() => ProductListRelationFilterSchema).optional(),
+}));
+
+export const ProductCategoryOrderByWithAggregationInputSchema: z.ZodType<Prisma.ProductCategoryOrderByWithAggregationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => ProductCategoryCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => ProductCategoryMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => ProductCategoryMinOrderByAggregateInputSchema).optional(),
+});
+
+export const ProductCategoryScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.ProductCategoryScalarWhereWithAggregatesInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => ProductCategoryScalarWhereWithAggregatesInputSchema), z.lazy(() => ProductCategoryScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ProductCategoryScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ProductCategoryScalarWhereWithAggregatesInputSchema), z.lazy(() => ProductCategoryScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
+  businessId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+});
+
+export const PriceWhereInputSchema: z.ZodType<Prisma.PriceWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => PriceWhereInputSchema), z.lazy(() => PriceWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PriceWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PriceWhereInputSchema), z.lazy(() => PriceWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumPriceTypeFilterSchema), z.lazy(() => PriceTypeSchema) ]).optional(),
+  amount: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  quantity: z.union([ z.lazy(() => FloatFilterSchema), z.number() ]).optional(),
+  productId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  product: z.union([ z.lazy(() => ProductScalarRelationFilterSchema), z.lazy(() => ProductWhereInputSchema) ]).optional(),
+});
+
+export const PriceOrderByWithRelationInputSchema: z.ZodType<Prisma.PriceOrderByWithRelationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+  productId: z.lazy(() => SortOrderSchema).optional(),
+  product: z.lazy(() => ProductOrderByWithRelationInputSchema).optional(),
+});
+
+export const PriceWhereUniqueInputSchema: z.ZodType<Prisma.PriceWhereUniqueInput> = z.object({
+  id: z.uuid(),
+})
+.and(z.strictObject({
+  id: z.uuid().optional(),
+  AND: z.union([ z.lazy(() => PriceWhereInputSchema), z.lazy(() => PriceWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PriceWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PriceWhereInputSchema), z.lazy(() => PriceWhereInputSchema).array() ]).optional(),
+  type: z.union([ z.lazy(() => EnumPriceTypeFilterSchema), z.lazy(() => PriceTypeSchema) ]).optional(),
+  amount: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  quantity: z.union([ z.lazy(() => FloatFilterSchema), z.number() ]).optional(),
+  productId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  product: z.union([ z.lazy(() => ProductScalarRelationFilterSchema), z.lazy(() => ProductWhereInputSchema) ]).optional(),
+}));
+
+export const PriceOrderByWithAggregationInputSchema: z.ZodType<Prisma.PriceOrderByWithAggregationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+  productId: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => PriceCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => PriceAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => PriceMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => PriceMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => PriceSumOrderByAggregateInputSchema).optional(),
+});
+
+export const PriceScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.PriceScalarWhereWithAggregatesInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => PriceScalarWhereWithAggregatesInputSchema), z.lazy(() => PriceScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PriceScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PriceScalarWhereWithAggregatesInputSchema), z.lazy(() => PriceScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumPriceTypeWithAggregatesFilterSchema), z.lazy(() => PriceTypeSchema) ]).optional(),
+  amount: z.union([ z.lazy(() => DecimalWithAggregatesFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  quantity: z.union([ z.lazy(() => FloatWithAggregatesFilterSchema), z.number() ]).optional(),
+  productId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+});
+
+export const CurrencyWhereInputSchema: z.ZodType<Prisma.CurrencyWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => CurrencyWhereInputSchema), z.lazy(() => CurrencyWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CurrencyWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CurrencyWhereInputSchema), z.lazy(() => CurrencyWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  code: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  active: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateListRelationFilterSchema).optional(),
+});
+
+export const CurrencyOrderByWithRelationInputSchema: z.ZodType<Prisma.CurrencyOrderByWithRelationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  code: z.lazy(() => SortOrderSchema).optional(),
+  active: z.lazy(() => SortOrderSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateOrderByRelationAggregateInputSchema).optional(),
+});
+
+export const CurrencyWhereUniqueInputSchema: z.ZodType<Prisma.CurrencyWhereUniqueInput> = z.union([
+  z.object({
+    id: z.uuid(),
+    code: z.string(),
+  }),
+  z.object({
+    id: z.uuid(),
+  }),
+  z.object({
+    code: z.string(),
+  }),
+])
+.and(z.strictObject({
+  id: z.uuid().optional(),
+  code: z.string().optional(),
+  AND: z.union([ z.lazy(() => CurrencyWhereInputSchema), z.lazy(() => CurrencyWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CurrencyWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CurrencyWhereInputSchema), z.lazy(() => CurrencyWhereInputSchema).array() ]).optional(),
+  active: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateListRelationFilterSchema).optional(),
+}));
+
+export const CurrencyOrderByWithAggregationInputSchema: z.ZodType<Prisma.CurrencyOrderByWithAggregationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  code: z.lazy(() => SortOrderSchema).optional(),
+  active: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => CurrencyCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => CurrencyMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => CurrencyMinOrderByAggregateInputSchema).optional(),
+});
+
+export const CurrencyScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.CurrencyScalarWhereWithAggregatesInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => CurrencyScalarWhereWithAggregatesInputSchema), z.lazy(() => CurrencyScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CurrencyScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CurrencyScalarWhereWithAggregatesInputSchema), z.lazy(() => CurrencyScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  code: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  active: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean() ]).optional(),
+});
+
+export const ExchangeRateWhereInputSchema: z.ZodType<Prisma.ExchangeRateWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => ExchangeRateWhereInputSchema), z.lazy(() => ExchangeRateWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExchangeRateWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExchangeRateWhereInputSchema), z.lazy(() => ExchangeRateWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  rate: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  currencyId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  branchId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  currency: z.union([ z.lazy(() => CurrencyScalarRelationFilterSchema), z.lazy(() => CurrencyWhereInputSchema) ]).optional(),
+  business: z.union([ z.lazy(() => BusinessScalarRelationFilterSchema), z.lazy(() => BusinessWhereInputSchema) ]).optional(),
+  branch: z.union([ z.lazy(() => BranchNullableScalarRelationFilterSchema), z.lazy(() => BranchWhereInputSchema) ]).optional().nullable(),
+});
+
+export const ExchangeRateOrderByWithRelationInputSchema: z.ZodType<Prisma.ExchangeRateOrderByWithRelationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  rate: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  currencyId: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  branchId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  currency: z.lazy(() => CurrencyOrderByWithRelationInputSchema).optional(),
+  business: z.lazy(() => BusinessOrderByWithRelationInputSchema).optional(),
+  branch: z.lazy(() => BranchOrderByWithRelationInputSchema).optional(),
+});
+
+export const ExchangeRateWhereUniqueInputSchema: z.ZodType<Prisma.ExchangeRateWhereUniqueInput> = z.union([
+  z.object({
+    id: z.uuid(),
+    currencyId_businessId_branchId: z.lazy(() => ExchangeRateCurrencyIdBusinessIdBranchIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    id: z.uuid(),
+  }),
+  z.object({
+    currencyId_businessId_branchId: z.lazy(() => ExchangeRateCurrencyIdBusinessIdBranchIdCompoundUniqueInputSchema),
+  }),
+])
+.and(z.strictObject({
+  id: z.uuid().optional(),
+  currencyId_businessId_branchId: z.lazy(() => ExchangeRateCurrencyIdBusinessIdBranchIdCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => ExchangeRateWhereInputSchema), z.lazy(() => ExchangeRateWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExchangeRateWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExchangeRateWhereInputSchema), z.lazy(() => ExchangeRateWhereInputSchema).array() ]).optional(),
+  rate: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  currencyId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  branchId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  currency: z.union([ z.lazy(() => CurrencyScalarRelationFilterSchema), z.lazy(() => CurrencyWhereInputSchema) ]).optional(),
+  business: z.union([ z.lazy(() => BusinessScalarRelationFilterSchema), z.lazy(() => BusinessWhereInputSchema) ]).optional(),
+  branch: z.union([ z.lazy(() => BranchNullableScalarRelationFilterSchema), z.lazy(() => BranchWhereInputSchema) ]).optional().nullable(),
+}));
+
+export const ExchangeRateOrderByWithAggregationInputSchema: z.ZodType<Prisma.ExchangeRateOrderByWithAggregationInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  rate: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  currencyId: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  branchId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  _count: z.lazy(() => ExchangeRateCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => ExchangeRateAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => ExchangeRateMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => ExchangeRateMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => ExchangeRateSumOrderByAggregateInputSchema).optional(),
+});
+
+export const ExchangeRateScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.ExchangeRateScalarWhereWithAggregatesInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => ExchangeRateScalarWhereWithAggregatesInputSchema), z.lazy(() => ExchangeRateScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExchangeRateScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExchangeRateScalarWhereWithAggregatesInputSchema), z.lazy(() => ExchangeRateScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  rate: z.union([ z.lazy(() => DecimalWithAggregatesFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
+  currencyId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  businessId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  branchId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
+});
+
 export const BusinessCreateInputSchema: z.ZodType<Prisma.BusinessCreateInput> = z.strictObject({
   name: z.string(),
   slug: z.string(),
@@ -1046,6 +1626,9 @@ export const BusinessCreateInputSchema: z.ZodType<Prisma.BusinessCreateInput> = 
   tenants: z.lazy(() => TenantCreateNestedManyWithoutBusinessInputSchema).optional(),
   branches: z.lazy(() => BranchCreateNestedManyWithoutBusinessInputSchema).optional(),
   products: z.lazy(() => ProductCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessUncheckedCreateInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateInput> = z.strictObject({
@@ -1058,6 +1641,9 @@ export const BusinessUncheckedCreateInputSchema: z.ZodType<Prisma.BusinessUnchec
   tenants: z.lazy(() => TenantUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
   branches: z.lazy(() => BranchUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessUpdateInputSchema: z.ZodType<Prisma.BusinessUpdateInput> = z.strictObject({
@@ -1070,6 +1656,9 @@ export const BusinessUpdateInputSchema: z.ZodType<Prisma.BusinessUpdateInput> = 
   tenants: z.lazy(() => TenantUpdateManyWithoutBusinessNestedInputSchema).optional(),
   branches: z.lazy(() => BranchUpdateManyWithoutBusinessNestedInputSchema).optional(),
   products: z.lazy(() => ProductUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const BusinessUncheckedUpdateInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateInput> = z.strictObject({
@@ -1082,6 +1671,9 @@ export const BusinessUncheckedUpdateInputSchema: z.ZodType<Prisma.BusinessUnchec
   tenants: z.lazy(() => TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
   branches: z.lazy(() => BranchUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const BusinessCreateManyInputSchema: z.ZodType<Prisma.BusinessCreateManyInput> = z.strictObject({
@@ -1202,6 +1794,7 @@ export const BranchCreateInputSchema: z.ZodType<Prisma.BranchCreateInput> = z.st
   products: z.lazy(() => ProductCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUncheckedCreateInputSchema: z.ZodType<Prisma.BranchUncheckedCreateInput> = z.strictObject({
@@ -1215,6 +1808,7 @@ export const BranchUncheckedCreateInputSchema: z.ZodType<Prisma.BranchUncheckedC
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUpdateInputSchema: z.ZodType<Prisma.BranchUpdateInput> = z.strictObject({
@@ -1228,6 +1822,7 @@ export const BranchUpdateInputSchema: z.ZodType<Prisma.BranchUpdateInput> = z.st
   products: z.lazy(() => ProductUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateInput> = z.strictObject({
@@ -1241,6 +1836,7 @@ export const BranchUncheckedUpdateInputSchema: z.ZodType<Prisma.BranchUncheckedU
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchCreateManyInputSchema: z.ZodType<Prisma.BranchCreateManyInput> = z.strictObject({
@@ -1375,9 +1971,11 @@ export const ProductCreateInputSchema: z.ZodType<Prisma.ProductCreateInput> = z.
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
+  productCategory: z.lazy(() => ProductCategoryCreateNestedOneWithoutProductsInputSchema).optional(),
   business: z.lazy(() => BusinessCreateNestedOneWithoutProductsInputSchema),
   branch: z.lazy(() => BranchCreateNestedOneWithoutProductsInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductUncheckedCreateInputSchema: z.ZodType<Prisma.ProductUncheckedCreateInput> = z.strictObject({
@@ -1388,10 +1986,12 @@ export const ProductUncheckedCreateInputSchema: z.ZodType<Prisma.ProductUnchecke
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   businessId: z.string(),
   branchId: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductUpdateInputSchema: z.ZodType<Prisma.ProductUpdateInput> = z.strictObject({
@@ -1403,9 +2003,11 @@ export const ProductUpdateInputSchema: z.ZodType<Prisma.ProductUpdateInput> = z.
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  productCategory: z.lazy(() => ProductCategoryUpdateOneWithoutProductsNestedInputSchema).optional(),
   business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductsNestedInputSchema).optional(),
   branch: z.lazy(() => BranchUpdateOneWithoutProductsNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductUncheckedUpdateInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateInput> = z.strictObject({
@@ -1416,10 +2018,12 @@ export const ProductUncheckedUpdateInputSchema: z.ZodType<Prisma.ProductUnchecke
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductCreateManyInputSchema: z.ZodType<Prisma.ProductCreateManyInput> = z.strictObject({
@@ -1430,6 +2034,7 @@ export const ProductCreateManyInputSchema: z.ZodType<Prisma.ProductCreateManyInp
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   businessId: z.string(),
   branchId: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
@@ -1454,6 +2059,7 @@ export const ProductUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ProductUnch
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -1594,6 +2200,265 @@ export const FavoritesUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Favorites
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 });
 
+export const BusinessCategoryCreateInputSchema: z.ZodType<Prisma.BusinessCategoryCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  businesses: z.lazy(() => BusinessCreateNestedManyWithoutCategoriesInputSchema).optional(),
+});
+
+export const BusinessCategoryUncheckedCreateInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  businesses: z.lazy(() => BusinessUncheckedCreateNestedManyWithoutCategoriesInputSchema).optional(),
+});
+
+export const BusinessCategoryUpdateInputSchema: z.ZodType<Prisma.BusinessCategoryUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businesses: z.lazy(() => BusinessUpdateManyWithoutCategoriesNestedInputSchema).optional(),
+});
+
+export const BusinessCategoryUncheckedUpdateInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businesses: z.lazy(() => BusinessUncheckedUpdateManyWithoutCategoriesNestedInputSchema).optional(),
+});
+
+export const BusinessCategoryCreateManyInputSchema: z.ZodType<Prisma.BusinessCategoryCreateManyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+});
+
+export const BusinessCategoryUpdateManyMutationInputSchema: z.ZodType<Prisma.BusinessCategoryUpdateManyMutationInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const BusinessCategoryUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedUpdateManyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const ProductCategoryCreateInputSchema: z.ZodType<Prisma.ProductCategoryCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutProductCategoriesInputSchema),
+  products: z.lazy(() => ProductCreateNestedManyWithoutProductCategoryInputSchema).optional(),
+});
+
+export const ProductCategoryUncheckedCreateInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  businessId: z.string(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutProductCategoryInputSchema).optional(),
+});
+
+export const ProductCategoryUpdateInputSchema: z.ZodType<Prisma.ProductCategoryUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductCategoriesNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUpdateManyWithoutProductCategoryNestedInputSchema).optional(),
+});
+
+export const ProductCategoryUncheckedUpdateInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  products: z.lazy(() => ProductUncheckedUpdateManyWithoutProductCategoryNestedInputSchema).optional(),
+});
+
+export const ProductCategoryCreateManyInputSchema: z.ZodType<Prisma.ProductCategoryCreateManyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  businessId: z.string(),
+});
+
+export const ProductCategoryUpdateManyMutationInputSchema: z.ZodType<Prisma.ProductCategoryUpdateManyMutationInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const ProductCategoryUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedUpdateManyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const PriceCreateInputSchema: z.ZodType<Prisma.PriceCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  type: z.lazy(() => PriceTypeSchema).optional(),
+  amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  quantity: z.number().optional(),
+  product: z.lazy(() => ProductCreateNestedOneWithoutPricesInputSchema),
+});
+
+export const PriceUncheckedCreateInputSchema: z.ZodType<Prisma.PriceUncheckedCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  type: z.lazy(() => PriceTypeSchema).optional(),
+  amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  quantity: z.number().optional(),
+  productId: z.string(),
+});
+
+export const PriceUpdateInputSchema: z.ZodType<Prisma.PriceUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  product: z.lazy(() => ProductUpdateOneRequiredWithoutPricesNestedInputSchema).optional(),
+});
+
+export const PriceUncheckedUpdateInputSchema: z.ZodType<Prisma.PriceUncheckedUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  productId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const PriceCreateManyInputSchema: z.ZodType<Prisma.PriceCreateManyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  type: z.lazy(() => PriceTypeSchema).optional(),
+  amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  quantity: z.number().optional(),
+  productId: z.string(),
+});
+
+export const PriceUpdateManyMutationInputSchema: z.ZodType<Prisma.PriceUpdateManyMutationInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const PriceUncheckedUpdateManyInputSchema: z.ZodType<Prisma.PriceUncheckedUpdateManyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  productId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const CurrencyCreateInputSchema: z.ZodType<Prisma.CurrencyCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  code: z.string(),
+  active: z.boolean().optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutCurrencyInputSchema).optional(),
+});
+
+export const CurrencyUncheckedCreateInputSchema: z.ZodType<Prisma.CurrencyUncheckedCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  code: z.string(),
+  active: z.boolean().optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutCurrencyInputSchema).optional(),
+});
+
+export const CurrencyUpdateInputSchema: z.ZodType<Prisma.CurrencyUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  code: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  active: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutCurrencyNestedInputSchema).optional(),
+});
+
+export const CurrencyUncheckedUpdateInputSchema: z.ZodType<Prisma.CurrencyUncheckedUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  code: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  active: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutCurrencyNestedInputSchema).optional(),
+});
+
+export const CurrencyCreateManyInputSchema: z.ZodType<Prisma.CurrencyCreateManyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  code: z.string(),
+  active: z.boolean().optional(),
+});
+
+export const CurrencyUpdateManyMutationInputSchema: z.ZodType<Prisma.CurrencyUpdateManyMutationInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  code: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  active: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const CurrencyUncheckedUpdateManyInputSchema: z.ZodType<Prisma.CurrencyUncheckedUpdateManyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  code: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  active: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ExchangeRateCreateInputSchema: z.ZodType<Prisma.ExchangeRateCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currency: z.lazy(() => CurrencyCreateNestedOneWithoutExchangeRatesInputSchema),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutExchangeRatesInputSchema),
+  branch: z.lazy(() => BranchCreateNestedOneWithoutExchangeRatesInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedCreateInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currencyId: z.string(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+});
+
+export const ExchangeRateUpdateInputSchema: z.ZodType<Prisma.ExchangeRateUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currency: z.lazy(() => CurrencyUpdateOneRequiredWithoutExchangeRatesNestedInputSchema).optional(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutExchangeRatesNestedInputSchema).optional(),
+  branch: z.lazy(() => BranchUpdateOneWithoutExchangeRatesNestedInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currencyId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const ExchangeRateCreateManyInputSchema: z.ZodType<Prisma.ExchangeRateCreateManyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currencyId: z.string(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+});
+
+export const ExchangeRateUpdateManyMutationInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyMutationInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currencyId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
 export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.strictObject({
   equals: z.string().optional(),
   in: z.string().array().optional(),
@@ -1653,6 +2518,24 @@ export const ProductListRelationFilterSchema: z.ZodType<Prisma.ProductListRelati
   none: z.lazy(() => ProductWhereInputSchema).optional(),
 });
 
+export const ProductCategoryListRelationFilterSchema: z.ZodType<Prisma.ProductCategoryListRelationFilter> = z.strictObject({
+  every: z.lazy(() => ProductCategoryWhereInputSchema).optional(),
+  some: z.lazy(() => ProductCategoryWhereInputSchema).optional(),
+  none: z.lazy(() => ProductCategoryWhereInputSchema).optional(),
+});
+
+export const ExchangeRateListRelationFilterSchema: z.ZodType<Prisma.ExchangeRateListRelationFilter> = z.strictObject({
+  every: z.lazy(() => ExchangeRateWhereInputSchema).optional(),
+  some: z.lazy(() => ExchangeRateWhereInputSchema).optional(),
+  none: z.lazy(() => ExchangeRateWhereInputSchema).optional(),
+});
+
+export const BusinessCategoryListRelationFilterSchema: z.ZodType<Prisma.BusinessCategoryListRelationFilter> = z.strictObject({
+  every: z.lazy(() => BusinessCategoryWhereInputSchema).optional(),
+  some: z.lazy(() => BusinessCategoryWhereInputSchema).optional(),
+  none: z.lazy(() => BusinessCategoryWhereInputSchema).optional(),
+});
+
 export const SortOrderInputSchema: z.ZodType<Prisma.SortOrderInput> = z.strictObject({
   sort: z.lazy(() => SortOrderSchema),
   nulls: z.lazy(() => NullsOrderSchema).optional(),
@@ -1667,6 +2550,18 @@ export const BranchOrderByRelationAggregateInputSchema: z.ZodType<Prisma.BranchO
 });
 
 export const ProductOrderByRelationAggregateInputSchema: z.ZodType<Prisma.ProductOrderByRelationAggregateInput> = z.strictObject({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ProductCategoryOrderByRelationAggregateInputSchema: z.ZodType<Prisma.ProductCategoryOrderByRelationAggregateInput> = z.strictObject({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ExchangeRateOrderByRelationAggregateInputSchema: z.ZodType<Prisma.ExchangeRateOrderByRelationAggregateInput> = z.strictObject({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const BusinessCategoryOrderByRelationAggregateInputSchema: z.ZodType<Prisma.BusinessCategoryOrderByRelationAggregateInput> = z.strictObject({
   _count: z.lazy(() => SortOrderSchema).optional(),
 });
 
@@ -1924,6 +2819,21 @@ export const BoolFilterSchema: z.ZodType<Prisma.BoolFilter> = z.strictObject({
   not: z.union([ z.boolean(),z.lazy(() => NestedBoolFilterSchema) ]).optional(),
 });
 
+export const ProductCategoryNullableScalarRelationFilterSchema: z.ZodType<Prisma.ProductCategoryNullableScalarRelationFilter> = z.strictObject({
+  is: z.lazy(() => ProductCategoryWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => ProductCategoryWhereInputSchema).optional().nullable(),
+});
+
+export const PriceListRelationFilterSchema: z.ZodType<Prisma.PriceListRelationFilter> = z.strictObject({
+  every: z.lazy(() => PriceWhereInputSchema).optional(),
+  some: z.lazy(() => PriceWhereInputSchema).optional(),
+  none: z.lazy(() => PriceWhereInputSchema).optional(),
+});
+
+export const PriceOrderByRelationAggregateInputSchema: z.ZodType<Prisma.PriceOrderByRelationAggregateInput> = z.strictObject({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+});
+
 export const ProductCountOrderByAggregateInputSchema: z.ZodType<Prisma.ProductCountOrderByAggregateInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
@@ -1932,6 +2842,7 @@ export const ProductCountOrderByAggregateInputSchema: z.ZodType<Prisma.ProductCo
   description: z.lazy(() => SortOrderSchema).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   imageUrl: z.lazy(() => SortOrderSchema).optional(),
+  productCategoryId: z.lazy(() => SortOrderSchema).optional(),
   businessId: z.lazy(() => SortOrderSchema).optional(),
   branchId: z.lazy(() => SortOrderSchema).optional(),
   isDeleted: z.lazy(() => SortOrderSchema).optional(),
@@ -1949,6 +2860,7 @@ export const ProductMaxOrderByAggregateInputSchema: z.ZodType<Prisma.ProductMaxO
   description: z.lazy(() => SortOrderSchema).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   imageUrl: z.lazy(() => SortOrderSchema).optional(),
+  productCategoryId: z.lazy(() => SortOrderSchema).optional(),
   businessId: z.lazy(() => SortOrderSchema).optional(),
   branchId: z.lazy(() => SortOrderSchema).optional(),
   isDeleted: z.lazy(() => SortOrderSchema).optional(),
@@ -1962,6 +2874,7 @@ export const ProductMinOrderByAggregateInputSchema: z.ZodType<Prisma.ProductMinO
   description: z.lazy(() => SortOrderSchema).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   imageUrl: z.lazy(() => SortOrderSchema).optional(),
+  productCategoryId: z.lazy(() => SortOrderSchema).optional(),
   businessId: z.lazy(() => SortOrderSchema).optional(),
   branchId: z.lazy(() => SortOrderSchema).optional(),
   isDeleted: z.lazy(() => SortOrderSchema).optional(),
@@ -2122,6 +3035,207 @@ export const EnumFavoriteTypeWithAggregatesFilterSchema: z.ZodType<Prisma.EnumFa
   _max: z.lazy(() => NestedEnumFavoriteTypeFilterSchema).optional(),
 });
 
+export const BusinessListRelationFilterSchema: z.ZodType<Prisma.BusinessListRelationFilter> = z.strictObject({
+  every: z.lazy(() => BusinessWhereInputSchema).optional(),
+  some: z.lazy(() => BusinessWhereInputSchema).optional(),
+  none: z.lazy(() => BusinessWhereInputSchema).optional(),
+});
+
+export const BusinessOrderByRelationAggregateInputSchema: z.ZodType<Prisma.BusinessOrderByRelationAggregateInput> = z.strictObject({
+  _count: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const BusinessCategoryCountOrderByAggregateInputSchema: z.ZodType<Prisma.BusinessCategoryCountOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const BusinessCategoryMaxOrderByAggregateInputSchema: z.ZodType<Prisma.BusinessCategoryMaxOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const BusinessCategoryMinOrderByAggregateInputSchema: z.ZodType<Prisma.BusinessCategoryMinOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ProductCategoryNameBusinessIdCompoundUniqueInputSchema: z.ZodType<Prisma.ProductCategoryNameBusinessIdCompoundUniqueInput> = z.strictObject({
+  name: z.string(),
+  businessId: z.string(),
+});
+
+export const ProductCategoryCountOrderByAggregateInputSchema: z.ZodType<Prisma.ProductCategoryCountOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ProductCategoryMaxOrderByAggregateInputSchema: z.ZodType<Prisma.ProductCategoryMaxOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ProductCategoryMinOrderByAggregateInputSchema: z.ZodType<Prisma.ProductCategoryMinOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const EnumPriceTypeFilterSchema: z.ZodType<Prisma.EnumPriceTypeFilter> = z.strictObject({
+  equals: z.lazy(() => PriceTypeSchema).optional(),
+  in: z.lazy(() => PriceTypeSchema).array().optional(),
+  notIn: z.lazy(() => PriceTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => NestedEnumPriceTypeFilterSchema) ]).optional(),
+});
+
+export const FloatFilterSchema: z.ZodType<Prisma.FloatFilter> = z.strictObject({
+  equals: z.number().optional(),
+  in: z.number().array().optional(),
+  notIn: z.number().array().optional(),
+  lt: z.number().optional(),
+  lte: z.number().optional(),
+  gt: z.number().optional(),
+  gte: z.number().optional(),
+  not: z.union([ z.number(),z.lazy(() => NestedFloatFilterSchema) ]).optional(),
+});
+
+export const ProductScalarRelationFilterSchema: z.ZodType<Prisma.ProductScalarRelationFilter> = z.strictObject({
+  is: z.lazy(() => ProductWhereInputSchema).optional(),
+  isNot: z.lazy(() => ProductWhereInputSchema).optional(),
+});
+
+export const PriceCountOrderByAggregateInputSchema: z.ZodType<Prisma.PriceCountOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+  productId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const PriceAvgOrderByAggregateInputSchema: z.ZodType<Prisma.PriceAvgOrderByAggregateInput> = z.strictObject({
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const PriceMaxOrderByAggregateInputSchema: z.ZodType<Prisma.PriceMaxOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+  productId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const PriceMinOrderByAggregateInputSchema: z.ZodType<Prisma.PriceMinOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+  productId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const PriceSumOrderByAggregateInputSchema: z.ZodType<Prisma.PriceSumOrderByAggregateInput> = z.strictObject({
+  amount: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const EnumPriceTypeWithAggregatesFilterSchema: z.ZodType<Prisma.EnumPriceTypeWithAggregatesFilter> = z.strictObject({
+  equals: z.lazy(() => PriceTypeSchema).optional(),
+  in: z.lazy(() => PriceTypeSchema).array().optional(),
+  notIn: z.lazy(() => PriceTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => NestedEnumPriceTypeWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumPriceTypeFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumPriceTypeFilterSchema).optional(),
+});
+
+export const FloatWithAggregatesFilterSchema: z.ZodType<Prisma.FloatWithAggregatesFilter> = z.strictObject({
+  equals: z.number().optional(),
+  in: z.number().array().optional(),
+  notIn: z.number().array().optional(),
+  lt: z.number().optional(),
+  lte: z.number().optional(),
+  gt: z.number().optional(),
+  gte: z.number().optional(),
+  not: z.union([ z.number(),z.lazy(() => NestedFloatWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _avg: z.lazy(() => NestedFloatFilterSchema).optional(),
+  _sum: z.lazy(() => NestedFloatFilterSchema).optional(),
+  _min: z.lazy(() => NestedFloatFilterSchema).optional(),
+  _max: z.lazy(() => NestedFloatFilterSchema).optional(),
+});
+
+export const CurrencyCountOrderByAggregateInputSchema: z.ZodType<Prisma.CurrencyCountOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  code: z.lazy(() => SortOrderSchema).optional(),
+  active: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const CurrencyMaxOrderByAggregateInputSchema: z.ZodType<Prisma.CurrencyMaxOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  code: z.lazy(() => SortOrderSchema).optional(),
+  active: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const CurrencyMinOrderByAggregateInputSchema: z.ZodType<Prisma.CurrencyMinOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  code: z.lazy(() => SortOrderSchema).optional(),
+  active: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const CurrencyScalarRelationFilterSchema: z.ZodType<Prisma.CurrencyScalarRelationFilter> = z.strictObject({
+  is: z.lazy(() => CurrencyWhereInputSchema).optional(),
+  isNot: z.lazy(() => CurrencyWhereInputSchema).optional(),
+});
+
+export const ExchangeRateCurrencyIdBusinessIdBranchIdCompoundUniqueInputSchema: z.ZodType<Prisma.ExchangeRateCurrencyIdBusinessIdBranchIdCompoundUniqueInput> = z.strictObject({
+  currencyId: z.string(),
+  businessId: z.string(),
+  branchId: z.string(),
+});
+
+export const ExchangeRateCountOrderByAggregateInputSchema: z.ZodType<Prisma.ExchangeRateCountOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  rate: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  currencyId: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  branchId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ExchangeRateAvgOrderByAggregateInputSchema: z.ZodType<Prisma.ExchangeRateAvgOrderByAggregateInput> = z.strictObject({
+  rate: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ExchangeRateMaxOrderByAggregateInputSchema: z.ZodType<Prisma.ExchangeRateMaxOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  rate: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  currencyId: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  branchId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ExchangeRateMinOrderByAggregateInputSchema: z.ZodType<Prisma.ExchangeRateMinOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  rate: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  currencyId: z.lazy(() => SortOrderSchema).optional(),
+  businessId: z.lazy(() => SortOrderSchema).optional(),
+  branchId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const ExchangeRateSumOrderByAggregateInputSchema: z.ZodType<Prisma.ExchangeRateSumOrderByAggregateInput> = z.strictObject({
+  rate: z.lazy(() => SortOrderSchema).optional(),
+});
+
 export const TenantCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma.TenantCreateNestedManyWithoutBusinessInput> = z.strictObject({
   create: z.union([ z.lazy(() => TenantCreateWithoutBusinessInputSchema), z.lazy(() => TenantCreateWithoutBusinessInputSchema).array(), z.lazy(() => TenantUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => TenantUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => TenantCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => TenantCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
@@ -2143,6 +3257,26 @@ export const ProductCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma
   connect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
 });
 
+export const ProductCategoryCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryCreateNestedManyWithoutBusinessInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema).array(), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCategoryCreateManyBusinessInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateCreateNestedManyWithoutBusinessInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBusinessInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryCreateNestedManyWithoutBusinessesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema).array(), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+});
+
 export const TenantUncheckedCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma.TenantUncheckedCreateNestedManyWithoutBusinessInput> = z.strictObject({
   create: z.union([ z.lazy(() => TenantCreateWithoutBusinessInputSchema), z.lazy(() => TenantCreateWithoutBusinessInputSchema).array(), z.lazy(() => TenantUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => TenantUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => TenantCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => TenantCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
@@ -2162,6 +3296,26 @@ export const ProductUncheckedCreateNestedManyWithoutBusinessInputSchema: z.ZodTy
   connectOrCreate: z.union([ z.lazy(() => ProductCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ProductCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
   createMany: z.lazy(() => ProductCreateManyBusinessInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedCreateNestedManyWithoutBusinessInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema).array(), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCategoryCreateManyBusinessInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateNestedManyWithoutBusinessInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBusinessInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema).array(), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
 });
 
 export const StringFieldUpdateOperationsInputSchema: z.ZodType<Prisma.StringFieldUpdateOperationsInput> = z.strictObject({
@@ -2218,6 +3372,47 @@ export const ProductUpdateManyWithoutBusinessNestedInputSchema: z.ZodType<Prisma
   deleteMany: z.union([ z.lazy(() => ProductScalarWhereInputSchema), z.lazy(() => ProductScalarWhereInputSchema).array() ]).optional(),
 });
 
+export const ProductCategoryUpdateManyWithoutBusinessNestedInputSchema: z.ZodType<Prisma.ProductCategoryUpdateManyWithoutBusinessNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema).array(), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ProductCategoryUpsertWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUpsertWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCategoryCreateManyBusinessInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ProductCategoryUpdateWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUpdateWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ProductCategoryUpdateManyWithWhereWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUpdateManyWithWhereWithoutBusinessInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ProductCategoryScalarWhereInputSchema), z.lazy(() => ProductCategoryScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUpdateManyWithoutBusinessNestedInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyWithoutBusinessNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBusinessInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBusinessInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema: z.ZodType<Prisma.BusinessCategoryUpdateManyWithoutBusinessesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema).array(), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => BusinessCategoryUpsertWithWhereUniqueWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUpsertWithWhereUniqueWithoutBusinessesInputSchema).array() ]).optional(),
+  set: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => BusinessCategoryUpdateWithWhereUniqueWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUpdateWithWhereUniqueWithoutBusinessesInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => BusinessCategoryUpdateManyWithWhereWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUpdateManyWithWhereWithoutBusinessesInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => BusinessCategoryScalarWhereInputSchema), z.lazy(() => BusinessCategoryScalarWhereInputSchema).array() ]).optional(),
+});
+
 export const TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema: z.ZodType<Prisma.TenantUncheckedUpdateManyWithoutBusinessNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => TenantCreateWithoutBusinessInputSchema), z.lazy(() => TenantCreateWithoutBusinessInputSchema).array(), z.lazy(() => TenantUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => TenantUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => TenantCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => TenantCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
@@ -2258,6 +3453,47 @@ export const ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema: z.ZodTy
   update: z.union([ z.lazy(() => ProductUpdateWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ProductUpdateWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => ProductUpdateManyWithWhereWithoutBusinessInputSchema), z.lazy(() => ProductUpdateManyWithWhereWithoutBusinessInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => ProductScalarWhereInputSchema), z.lazy(() => ProductScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema).array(), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ProductCategoryCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ProductCategoryUpsertWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUpsertWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCategoryCreateManyBusinessInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ProductCategoryWhereUniqueInputSchema), z.lazy(() => ProductCategoryWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ProductCategoryUpdateWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUpdateWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ProductCategoryUpdateManyWithWhereWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUpdateManyWithWhereWithoutBusinessInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ProductCategoryScalarWhereInputSchema), z.lazy(() => ProductCategoryScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBusinessInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBusinessInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBusinessInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBusinessInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema).array(), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => BusinessCategoryUpsertWithWhereUniqueWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUpsertWithWhereUniqueWithoutBusinessesInputSchema).array() ]).optional(),
+  set: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessCategoryWhereUniqueInputSchema), z.lazy(() => BusinessCategoryWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => BusinessCategoryUpdateWithWhereUniqueWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUpdateWithWhereUniqueWithoutBusinessesInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => BusinessCategoryUpdateManyWithWhereWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUpdateManyWithWhereWithoutBusinessesInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => BusinessCategoryScalarWhereInputSchema), z.lazy(() => BusinessCategoryScalarWhereInputSchema).array() ]).optional(),
 });
 
 export const BusinessCreateNestedOneWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessCreateNestedOneWithoutTenantsInput> = z.strictObject({
@@ -2350,6 +3586,13 @@ export const FavoritesCreateNestedManyWithoutBranchInputSchema: z.ZodType<Prisma
   connect: z.union([ z.lazy(() => FavoritesWhereUniqueInputSchema), z.lazy(() => FavoritesWhereUniqueInputSchema).array() ]).optional(),
 });
 
+export const ExchangeRateCreateNestedManyWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateCreateNestedManyWithoutBranchInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBranchInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+});
+
 export const UserUncheckedCreateNestedManyWithoutBranchInputSchema: z.ZodType<Prisma.UserUncheckedCreateNestedManyWithoutBranchInput> = z.strictObject({
   create: z.union([ z.lazy(() => UserCreateWithoutBranchInputSchema), z.lazy(() => UserCreateWithoutBranchInputSchema).array(), z.lazy(() => UserUncheckedCreateWithoutBranchInputSchema), z.lazy(() => UserUncheckedCreateWithoutBranchInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => UserCreateOrConnectWithoutBranchInputSchema), z.lazy(() => UserCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
@@ -2376,6 +3619,13 @@ export const FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema: z.ZodTy
   connectOrCreate: z.union([ z.lazy(() => FavoritesCreateOrConnectWithoutBranchInputSchema), z.lazy(() => FavoritesCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
   createMany: z.lazy(() => FavoritesCreateManyBranchInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => FavoritesWhereUniqueInputSchema), z.lazy(() => FavoritesWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateNestedManyWithoutBranchInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBranchInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
 });
 
 export const BusinessUpdateOneRequiredWithoutBranchesNestedInputSchema: z.ZodType<Prisma.BusinessUpdateOneRequiredWithoutBranchesNestedInput> = z.strictObject({
@@ -2442,6 +3692,20 @@ export const FavoritesUpdateManyWithoutBranchNestedInputSchema: z.ZodType<Prisma
   deleteMany: z.union([ z.lazy(() => FavoritesScalarWhereInputSchema), z.lazy(() => FavoritesScalarWhereInputSchema).array() ]).optional(),
 });
 
+export const ExchangeRateUpdateManyWithoutBranchNestedInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyWithoutBranchNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBranchInputSchema), z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBranchInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBranchInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBranchInputSchema), z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBranchInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBranchInputSchema), z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBranchInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+});
+
 export const UserUncheckedUpdateManyWithoutBranchNestedInputSchema: z.ZodType<Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => UserCreateWithoutBranchInputSchema), z.lazy(() => UserCreateWithoutBranchInputSchema).array(), z.lazy(() => UserUncheckedCreateWithoutBranchInputSchema), z.lazy(() => UserUncheckedCreateWithoutBranchInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => UserCreateOrConnectWithoutBranchInputSchema), z.lazy(() => UserCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
@@ -2496,6 +3760,20 @@ export const FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema: z.ZodTy
   update: z.union([ z.lazy(() => FavoritesUpdateWithWhereUniqueWithoutBranchInputSchema), z.lazy(() => FavoritesUpdateWithWhereUniqueWithoutBranchInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => FavoritesUpdateManyWithWhereWithoutBranchInputSchema), z.lazy(() => FavoritesUpdateManyWithWhereWithoutBranchInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => FavoritesScalarWhereInputSchema), z.lazy(() => FavoritesScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyWithoutBranchNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutBranchInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBranchInputSchema), z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutBranchInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyBranchInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBranchInputSchema), z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutBranchInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBranchInputSchema), z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutBranchInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
 });
 
 export const TenantCreateNestedOneWithoutUsersInputSchema: z.ZodType<Prisma.TenantCreateNestedOneWithoutUsersInput> = z.strictObject({
@@ -2618,6 +3896,12 @@ export const FavoritesUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType
   deleteMany: z.union([ z.lazy(() => FavoritesScalarWhereInputSchema), z.lazy(() => FavoritesScalarWhereInputSchema).array() ]).optional(),
 });
 
+export const ProductCategoryCreateNestedOneWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryCreateNestedOneWithoutProductsInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutProductsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ProductCategoryCreateOrConnectWithoutProductsInputSchema).optional(),
+  connect: z.lazy(() => ProductCategoryWhereUniqueInputSchema).optional(),
+});
+
 export const BusinessCreateNestedOneWithoutProductsInputSchema: z.ZodType<Prisma.BusinessCreateNestedOneWithoutProductsInput> = z.strictObject({
   create: z.union([ z.lazy(() => BusinessCreateWithoutProductsInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutProductsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => BusinessCreateOrConnectWithoutProductsInputSchema).optional(),
@@ -2637,11 +3921,25 @@ export const FavoritesCreateNestedManyWithoutProductInputSchema: z.ZodType<Prism
   connect: z.union([ z.lazy(() => FavoritesWhereUniqueInputSchema), z.lazy(() => FavoritesWhereUniqueInputSchema).array() ]).optional(),
 });
 
+export const PriceCreateNestedManyWithoutProductInputSchema: z.ZodType<Prisma.PriceCreateNestedManyWithoutProductInput> = z.strictObject({
+  create: z.union([ z.lazy(() => PriceCreateWithoutProductInputSchema), z.lazy(() => PriceCreateWithoutProductInputSchema).array(), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema), z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PriceCreateManyProductInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+});
+
 export const FavoritesUncheckedCreateNestedManyWithoutProductInputSchema: z.ZodType<Prisma.FavoritesUncheckedCreateNestedManyWithoutProductInput> = z.strictObject({
   create: z.union([ z.lazy(() => FavoritesCreateWithoutProductInputSchema), z.lazy(() => FavoritesCreateWithoutProductInputSchema).array(), z.lazy(() => FavoritesUncheckedCreateWithoutProductInputSchema), z.lazy(() => FavoritesUncheckedCreateWithoutProductInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => FavoritesCreateOrConnectWithoutProductInputSchema), z.lazy(() => FavoritesCreateOrConnectWithoutProductInputSchema).array() ]).optional(),
   createMany: z.lazy(() => FavoritesCreateManyProductInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => FavoritesWhereUniqueInputSchema), z.lazy(() => FavoritesWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const PriceUncheckedCreateNestedManyWithoutProductInputSchema: z.ZodType<Prisma.PriceUncheckedCreateNestedManyWithoutProductInput> = z.strictObject({
+  create: z.union([ z.lazy(() => PriceCreateWithoutProductInputSchema), z.lazy(() => PriceCreateWithoutProductInputSchema).array(), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema), z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PriceCreateManyProductInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
 });
 
 export const DecimalFieldUpdateOperationsInputSchema: z.ZodType<Prisma.DecimalFieldUpdateOperationsInput> = z.strictObject({
@@ -2654,6 +3952,16 @@ export const DecimalFieldUpdateOperationsInputSchema: z.ZodType<Prisma.DecimalFi
 
 export const BoolFieldUpdateOperationsInputSchema: z.ZodType<Prisma.BoolFieldUpdateOperationsInput> = z.strictObject({
   set: z.boolean().optional(),
+});
+
+export const ProductCategoryUpdateOneWithoutProductsNestedInputSchema: z.ZodType<Prisma.ProductCategoryUpdateOneWithoutProductsNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutProductsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ProductCategoryCreateOrConnectWithoutProductsInputSchema).optional(),
+  upsert: z.lazy(() => ProductCategoryUpsertWithoutProductsInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => ProductCategoryWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => ProductCategoryWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => ProductCategoryWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => ProductCategoryUpdateToOneWithWhereWithoutProductsInputSchema), z.lazy(() => ProductCategoryUpdateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedUpdateWithoutProductsInputSchema) ]).optional(),
 });
 
 export const BusinessUpdateOneRequiredWithoutProductsNestedInputSchema: z.ZodType<Prisma.BusinessUpdateOneRequiredWithoutProductsNestedInput> = z.strictObject({
@@ -2688,6 +3996,20 @@ export const FavoritesUpdateManyWithoutProductNestedInputSchema: z.ZodType<Prism
   deleteMany: z.union([ z.lazy(() => FavoritesScalarWhereInputSchema), z.lazy(() => FavoritesScalarWhereInputSchema).array() ]).optional(),
 });
 
+export const PriceUpdateManyWithoutProductNestedInputSchema: z.ZodType<Prisma.PriceUpdateManyWithoutProductNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => PriceCreateWithoutProductInputSchema), z.lazy(() => PriceCreateWithoutProductInputSchema).array(), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema), z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PriceUpsertWithWhereUniqueWithoutProductInputSchema), z.lazy(() => PriceUpsertWithWhereUniqueWithoutProductInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PriceCreateManyProductInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PriceUpdateWithWhereUniqueWithoutProductInputSchema), z.lazy(() => PriceUpdateWithWhereUniqueWithoutProductInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PriceUpdateManyWithWhereWithoutProductInputSchema), z.lazy(() => PriceUpdateManyWithWhereWithoutProductInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PriceScalarWhereInputSchema), z.lazy(() => PriceScalarWhereInputSchema).array() ]).optional(),
+});
+
 export const FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema: z.ZodType<Prisma.FavoritesUncheckedUpdateManyWithoutProductNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => FavoritesCreateWithoutProductInputSchema), z.lazy(() => FavoritesCreateWithoutProductInputSchema).array(), z.lazy(() => FavoritesUncheckedCreateWithoutProductInputSchema), z.lazy(() => FavoritesUncheckedCreateWithoutProductInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => FavoritesCreateOrConnectWithoutProductInputSchema), z.lazy(() => FavoritesCreateOrConnectWithoutProductInputSchema).array() ]).optional(),
@@ -2700,6 +4022,20 @@ export const FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema: z.ZodT
   update: z.union([ z.lazy(() => FavoritesUpdateWithWhereUniqueWithoutProductInputSchema), z.lazy(() => FavoritesUpdateWithWhereUniqueWithoutProductInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => FavoritesUpdateManyWithWhereWithoutProductInputSchema), z.lazy(() => FavoritesUpdateManyWithWhereWithoutProductInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => FavoritesScalarWhereInputSchema), z.lazy(() => FavoritesScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const PriceUncheckedUpdateManyWithoutProductNestedInputSchema: z.ZodType<Prisma.PriceUncheckedUpdateManyWithoutProductNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => PriceCreateWithoutProductInputSchema), z.lazy(() => PriceCreateWithoutProductInputSchema).array(), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema), z.lazy(() => PriceCreateOrConnectWithoutProductInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PriceUpsertWithWhereUniqueWithoutProductInputSchema), z.lazy(() => PriceUpsertWithWhereUniqueWithoutProductInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PriceCreateManyProductInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PriceWhereUniqueInputSchema), z.lazy(() => PriceWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PriceUpdateWithWhereUniqueWithoutProductInputSchema), z.lazy(() => PriceUpdateWithWhereUniqueWithoutProductInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PriceUpdateManyWithWhereWithoutProductInputSchema), z.lazy(() => PriceUpdateManyWithWhereWithoutProductInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PriceScalarWhereInputSchema), z.lazy(() => PriceScalarWhereInputSchema).array() ]).optional(),
 });
 
 export const BranchCreateNestedOneWithoutReviewsInputSchema: z.ZodType<Prisma.BranchCreateNestedOneWithoutReviewsInput> = z.strictObject({
@@ -2786,6 +4122,212 @@ export const UserUpdateOneRequiredWithoutFavoritesNestedInputSchema: z.ZodType<P
   upsert: z.lazy(() => UserUpsertWithoutFavoritesInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutFavoritesInputSchema), z.lazy(() => UserUpdateWithoutFavoritesInputSchema), z.lazy(() => UserUncheckedUpdateWithoutFavoritesInputSchema) ]).optional(),
+});
+
+export const BusinessCreateNestedManyWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessCreateNestedManyWithoutCategoriesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateWithoutCategoriesInputSchema).array(), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const BusinessUncheckedCreateNestedManyWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateNestedManyWithoutCategoriesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateWithoutCategoriesInputSchema).array(), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const BusinessUpdateManyWithoutCategoriesNestedInputSchema: z.ZodType<Prisma.BusinessUpdateManyWithoutCategoriesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateWithoutCategoriesInputSchema).array(), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => BusinessUpsertWithWhereUniqueWithoutCategoriesInputSchema), z.lazy(() => BusinessUpsertWithWhereUniqueWithoutCategoriesInputSchema).array() ]).optional(),
+  set: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => BusinessUpdateWithWhereUniqueWithoutCategoriesInputSchema), z.lazy(() => BusinessUpdateWithWhereUniqueWithoutCategoriesInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => BusinessUpdateManyWithWhereWithoutCategoriesInputSchema), z.lazy(() => BusinessUpdateManyWithWhereWithoutCategoriesInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => BusinessScalarWhereInputSchema), z.lazy(() => BusinessScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const BusinessUncheckedUpdateManyWithoutCategoriesNestedInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateManyWithoutCategoriesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateWithoutCategoriesInputSchema).array(), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema), z.lazy(() => BusinessCreateOrConnectWithoutCategoriesInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => BusinessUpsertWithWhereUniqueWithoutCategoriesInputSchema), z.lazy(() => BusinessUpsertWithWhereUniqueWithoutCategoriesInputSchema).array() ]).optional(),
+  set: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => BusinessWhereUniqueInputSchema), z.lazy(() => BusinessWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => BusinessUpdateWithWhereUniqueWithoutCategoriesInputSchema), z.lazy(() => BusinessUpdateWithWhereUniqueWithoutCategoriesInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => BusinessUpdateManyWithWhereWithoutCategoriesInputSchema), z.lazy(() => BusinessUpdateManyWithWhereWithoutCategoriesInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => BusinessScalarWhereInputSchema), z.lazy(() => BusinessScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const BusinessCreateNestedOneWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessCreateNestedOneWithoutProductCategoriesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutProductCategoriesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => BusinessCreateOrConnectWithoutProductCategoriesInputSchema).optional(),
+  connect: z.lazy(() => BusinessWhereUniqueInputSchema).optional(),
+});
+
+export const ProductCreateNestedManyWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductCreateNestedManyWithoutProductCategoryInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateWithoutProductCategoryInputSchema).array(), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCreateManyProductCategoryInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ProductUncheckedCreateNestedManyWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUncheckedCreateNestedManyWithoutProductCategoryInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateWithoutProductCategoryInputSchema).array(), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCreateManyProductCategoryInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const BusinessUpdateOneRequiredWithoutProductCategoriesNestedInputSchema: z.ZodType<Prisma.BusinessUpdateOneRequiredWithoutProductCategoriesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutProductCategoriesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => BusinessCreateOrConnectWithoutProductCategoriesInputSchema).optional(),
+  upsert: z.lazy(() => BusinessUpsertWithoutProductCategoriesInputSchema).optional(),
+  connect: z.lazy(() => BusinessWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => BusinessUpdateToOneWithWhereWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUpdateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutProductCategoriesInputSchema) ]).optional(),
+});
+
+export const ProductUpdateManyWithoutProductCategoryNestedInputSchema: z.ZodType<Prisma.ProductUpdateManyWithoutProductCategoryNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateWithoutProductCategoryInputSchema).array(), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ProductUpsertWithWhereUniqueWithoutProductCategoryInputSchema), z.lazy(() => ProductUpsertWithWhereUniqueWithoutProductCategoryInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCreateManyProductCategoryInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ProductUpdateWithWhereUniqueWithoutProductCategoryInputSchema), z.lazy(() => ProductUpdateWithWhereUniqueWithoutProductCategoryInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ProductUpdateManyWithWhereWithoutProductCategoryInputSchema), z.lazy(() => ProductUpdateManyWithWhereWithoutProductCategoryInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ProductScalarWhereInputSchema), z.lazy(() => ProductScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ProductUncheckedUpdateManyWithoutProductCategoryNestedInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateManyWithoutProductCategoryNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateWithoutProductCategoryInputSchema).array(), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema), z.lazy(() => ProductCreateOrConnectWithoutProductCategoryInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ProductUpsertWithWhereUniqueWithoutProductCategoryInputSchema), z.lazy(() => ProductUpsertWithWhereUniqueWithoutProductCategoryInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ProductCreateManyProductCategoryInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ProductWhereUniqueInputSchema), z.lazy(() => ProductWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ProductUpdateWithWhereUniqueWithoutProductCategoryInputSchema), z.lazy(() => ProductUpdateWithWhereUniqueWithoutProductCategoryInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ProductUpdateManyWithWhereWithoutProductCategoryInputSchema), z.lazy(() => ProductUpdateManyWithWhereWithoutProductCategoryInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ProductScalarWhereInputSchema), z.lazy(() => ProductScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ProductCreateNestedOneWithoutPricesInputSchema: z.ZodType<Prisma.ProductCreateNestedOneWithoutPricesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCreateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedCreateWithoutPricesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ProductCreateOrConnectWithoutPricesInputSchema).optional(),
+  connect: z.lazy(() => ProductWhereUniqueInputSchema).optional(),
+});
+
+export const EnumPriceTypeFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumPriceTypeFieldUpdateOperationsInput> = z.strictObject({
+  set: z.lazy(() => PriceTypeSchema).optional(),
+});
+
+export const FloatFieldUpdateOperationsInputSchema: z.ZodType<Prisma.FloatFieldUpdateOperationsInput> = z.strictObject({
+  set: z.number().optional(),
+  increment: z.number().optional(),
+  decrement: z.number().optional(),
+  multiply: z.number().optional(),
+  divide: z.number().optional(),
+});
+
+export const ProductUpdateOneRequiredWithoutPricesNestedInputSchema: z.ZodType<Prisma.ProductUpdateOneRequiredWithoutPricesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ProductCreateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedCreateWithoutPricesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ProductCreateOrConnectWithoutPricesInputSchema).optional(),
+  upsert: z.lazy(() => ProductUpsertWithoutPricesInputSchema).optional(),
+  connect: z.lazy(() => ProductWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => ProductUpdateToOneWithWhereWithoutPricesInputSchema), z.lazy(() => ProductUpdateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedUpdateWithoutPricesInputSchema) ]).optional(),
+});
+
+export const ExchangeRateCreateNestedManyWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateCreateNestedManyWithoutCurrencyInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyCurrencyInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUncheckedCreateNestedManyWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateNestedManyWithoutCurrencyInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyCurrencyInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUpdateManyWithoutCurrencyNestedInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyWithoutCurrencyNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutCurrencyInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyCurrencyInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutCurrencyInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutCurrencyInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateManyWithoutCurrencyNestedInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyWithoutCurrencyNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema).array(), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateCreateOrConnectWithoutCurrencyInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUpsertWithWhereUniqueWithoutCurrencyInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ExchangeRateCreateManyCurrencyInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ExchangeRateWhereUniqueInputSchema), z.lazy(() => ExchangeRateWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUpdateWithWhereUniqueWithoutCurrencyInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUpdateManyWithWhereWithoutCurrencyInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+});
+
+export const CurrencyCreateNestedOneWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyCreateNestedOneWithoutExchangeRatesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => CurrencyCreateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedCreateWithoutExchangeRatesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CurrencyCreateOrConnectWithoutExchangeRatesInputSchema).optional(),
+  connect: z.lazy(() => CurrencyWhereUniqueInputSchema).optional(),
+});
+
+export const BusinessCreateNestedOneWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessCreateNestedOneWithoutExchangeRatesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutExchangeRatesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => BusinessCreateOrConnectWithoutExchangeRatesInputSchema).optional(),
+  connect: z.lazy(() => BusinessWhereUniqueInputSchema).optional(),
+});
+
+export const BranchCreateNestedOneWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchCreateNestedOneWithoutExchangeRatesInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BranchCreateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedCreateWithoutExchangeRatesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => BranchCreateOrConnectWithoutExchangeRatesInputSchema).optional(),
+  connect: z.lazy(() => BranchWhereUniqueInputSchema).optional(),
+});
+
+export const CurrencyUpdateOneRequiredWithoutExchangeRatesNestedInputSchema: z.ZodType<Prisma.CurrencyUpdateOneRequiredWithoutExchangeRatesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => CurrencyCreateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedCreateWithoutExchangeRatesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CurrencyCreateOrConnectWithoutExchangeRatesInputSchema).optional(),
+  upsert: z.lazy(() => CurrencyUpsertWithoutExchangeRatesInputSchema).optional(),
+  connect: z.lazy(() => CurrencyWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CurrencyUpdateToOneWithWhereWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUpdateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedUpdateWithoutExchangeRatesInputSchema) ]).optional(),
+});
+
+export const BusinessUpdateOneRequiredWithoutExchangeRatesNestedInputSchema: z.ZodType<Prisma.BusinessUpdateOneRequiredWithoutExchangeRatesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BusinessCreateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutExchangeRatesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => BusinessCreateOrConnectWithoutExchangeRatesInputSchema).optional(),
+  upsert: z.lazy(() => BusinessUpsertWithoutExchangeRatesInputSchema).optional(),
+  connect: z.lazy(() => BusinessWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => BusinessUpdateToOneWithWhereWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUpdateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutExchangeRatesInputSchema) ]).optional(),
+});
+
+export const BranchUpdateOneWithoutExchangeRatesNestedInputSchema: z.ZodType<Prisma.BranchUpdateOneWithoutExchangeRatesNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => BranchCreateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedCreateWithoutExchangeRatesInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => BranchCreateOrConnectWithoutExchangeRatesInputSchema).optional(),
+  upsert: z.lazy(() => BranchUpsertWithoutExchangeRatesInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => BranchWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => BranchWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => BranchWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => BranchUpdateToOneWithWhereWithoutExchangeRatesInputSchema), z.lazy(() => BranchUpdateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedUpdateWithoutExchangeRatesInputSchema) ]).optional(),
 });
 
 export const NestedStringFilterSchema: z.ZodType<Prisma.NestedStringFilter> = z.strictObject({
@@ -2998,6 +4540,39 @@ export const NestedEnumFavoriteTypeWithAggregatesFilterSchema: z.ZodType<Prisma.
   _max: z.lazy(() => NestedEnumFavoriteTypeFilterSchema).optional(),
 });
 
+export const NestedEnumPriceTypeFilterSchema: z.ZodType<Prisma.NestedEnumPriceTypeFilter> = z.strictObject({
+  equals: z.lazy(() => PriceTypeSchema).optional(),
+  in: z.lazy(() => PriceTypeSchema).array().optional(),
+  notIn: z.lazy(() => PriceTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => NestedEnumPriceTypeFilterSchema) ]).optional(),
+});
+
+export const NestedEnumPriceTypeWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumPriceTypeWithAggregatesFilter> = z.strictObject({
+  equals: z.lazy(() => PriceTypeSchema).optional(),
+  in: z.lazy(() => PriceTypeSchema).array().optional(),
+  notIn: z.lazy(() => PriceTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => NestedEnumPriceTypeWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumPriceTypeFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumPriceTypeFilterSchema).optional(),
+});
+
+export const NestedFloatWithAggregatesFilterSchema: z.ZodType<Prisma.NestedFloatWithAggregatesFilter> = z.strictObject({
+  equals: z.number().optional(),
+  in: z.number().array().optional(),
+  notIn: z.number().array().optional(),
+  lt: z.number().optional(),
+  lte: z.number().optional(),
+  gt: z.number().optional(),
+  gte: z.number().optional(),
+  not: z.union([ z.number(),z.lazy(() => NestedFloatWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _avg: z.lazy(() => NestedFloatFilterSchema).optional(),
+  _sum: z.lazy(() => NestedFloatFilterSchema).optional(),
+  _min: z.lazy(() => NestedFloatFilterSchema).optional(),
+  _max: z.lazy(() => NestedFloatFilterSchema).optional(),
+});
+
 export const TenantCreateWithoutBusinessInputSchema: z.ZodType<Prisma.TenantCreateWithoutBusinessInput> = z.strictObject({
   names: z.string(),
   maternal_surname: z.string(),
@@ -3040,6 +4615,7 @@ export const BranchCreateWithoutBusinessInputSchema: z.ZodType<Prisma.BranchCrea
   products: z.lazy(() => ProductCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUncheckedCreateWithoutBusinessInputSchema: z.ZodType<Prisma.BranchUncheckedCreateWithoutBusinessInput> = z.strictObject({
@@ -3052,6 +4628,7 @@ export const BranchUncheckedCreateWithoutBusinessInputSchema: z.ZodType<Prisma.B
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchCreateOrConnectWithoutBusinessInputSchema: z.ZodType<Prisma.BranchCreateOrConnectWithoutBusinessInput> = z.strictObject({
@@ -3073,8 +4650,10 @@ export const ProductCreateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCr
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
+  productCategory: z.lazy(() => ProductCategoryCreateNestedOneWithoutProductsInputSchema).optional(),
   branch: z.lazy(() => BranchCreateNestedOneWithoutProductsInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductUncheckedCreateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductUncheckedCreateWithoutBusinessInput> = z.strictObject({
@@ -3085,9 +4664,11 @@ export const ProductUncheckedCreateWithoutBusinessInputSchema: z.ZodType<Prisma.
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   branchId: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductCreateOrConnectWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCreateOrConnectWithoutBusinessInput> = z.strictObject({
@@ -3098,6 +4679,73 @@ export const ProductCreateOrConnectWithoutBusinessInputSchema: z.ZodType<Prisma.
 export const ProductCreateManyBusinessInputEnvelopeSchema: z.ZodType<Prisma.ProductCreateManyBusinessInputEnvelope> = z.strictObject({
   data: z.union([ z.lazy(() => ProductCreateManyBusinessInputSchema), z.lazy(() => ProductCreateManyBusinessInputSchema).array() ]),
   skipDuplicates: z.boolean().optional(),
+});
+
+export const ProductCategoryCreateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryCreateWithoutBusinessInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  products: z.lazy(() => ProductCreateNestedManyWithoutProductCategoryInputSchema).optional(),
+});
+
+export const ProductCategoryUncheckedCreateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedCreateWithoutBusinessInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutProductCategoryInputSchema).optional(),
+});
+
+export const ProductCategoryCreateOrConnectWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryCreateOrConnectWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ProductCategoryWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema) ]),
+});
+
+export const ProductCategoryCreateManyBusinessInputEnvelopeSchema: z.ZodType<Prisma.ProductCategoryCreateManyBusinessInputEnvelope> = z.strictObject({
+  data: z.union([ z.lazy(() => ProductCategoryCreateManyBusinessInputSchema), z.lazy(() => ProductCategoryCreateManyBusinessInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional(),
+});
+
+export const ExchangeRateCreateWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateCreateWithoutBusinessInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currency: z.lazy(() => CurrencyCreateNestedOneWithoutExchangeRatesInputSchema),
+  branch: z.lazy(() => BranchCreateNestedOneWithoutExchangeRatesInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedCreateWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateWithoutBusinessInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currencyId: z.string(),
+  branchId: z.string().optional().nullable(),
+});
+
+export const ExchangeRateCreateOrConnectWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateCreateOrConnectWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema) ]),
+});
+
+export const ExchangeRateCreateManyBusinessInputEnvelopeSchema: z.ZodType<Prisma.ExchangeRateCreateManyBusinessInputEnvelope> = z.strictObject({
+  data: z.union([ z.lazy(() => ExchangeRateCreateManyBusinessInputSchema), z.lazy(() => ExchangeRateCreateManyBusinessInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional(),
+});
+
+export const BusinessCategoryCreateWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryCreateWithoutBusinessesInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+});
+
+export const BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedCreateWithoutBusinessesInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+});
+
+export const BusinessCategoryCreateOrConnectWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryCreateOrConnectWithoutBusinessesInput> = z.strictObject({
+  where: z.lazy(() => BusinessCategoryWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema) ]),
 });
 
 export const TenantUpsertWithWhereUniqueWithoutBusinessInputSchema: z.ZodType<Prisma.TenantUpsertWithWhereUniqueWithoutBusinessInput> = z.strictObject({
@@ -3185,9 +4833,89 @@ export const ProductScalarWhereInputSchema: z.ZodType<Prisma.ProductScalarWhereI
   description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  productCategoryId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   branchId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   isDeleted: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
+});
+
+export const ProductCategoryUpsertWithWhereUniqueWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUpsertWithWhereUniqueWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ProductCategoryWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ProductCategoryUpdateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedUpdateWithoutBusinessInputSchema) ]),
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutBusinessInputSchema) ]),
+});
+
+export const ProductCategoryUpdateWithWhereUniqueWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUpdateWithWhereUniqueWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ProductCategoryWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ProductCategoryUpdateWithoutBusinessInputSchema), z.lazy(() => ProductCategoryUncheckedUpdateWithoutBusinessInputSchema) ]),
+});
+
+export const ProductCategoryUpdateManyWithWhereWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUpdateManyWithWhereWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ProductCategoryScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ProductCategoryUpdateManyMutationInputSchema), z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessInputSchema) ]),
+});
+
+export const ProductCategoryScalarWhereInputSchema: z.ZodType<Prisma.ProductCategoryScalarWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => ProductCategoryScalarWhereInputSchema), z.lazy(() => ProductCategoryScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ProductCategoryScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ProductCategoryScalarWhereInputSchema), z.lazy(() => ProductCategoryScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+});
+
+export const ExchangeRateUpsertWithWhereUniqueWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUpsertWithWhereUniqueWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateWithoutBusinessInputSchema) ]),
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBusinessInputSchema) ]),
+});
+
+export const ExchangeRateUpdateWithWhereUniqueWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUpdateWithWhereUniqueWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ExchangeRateUpdateWithoutBusinessInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateWithoutBusinessInputSchema) ]),
+});
+
+export const ExchangeRateUpdateManyWithWhereWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyWithWhereWithoutBusinessInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ExchangeRateUpdateManyMutationInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessInputSchema) ]),
+});
+
+export const ExchangeRateScalarWhereInputSchema: z.ZodType<Prisma.ExchangeRateScalarWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExchangeRateScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExchangeRateScalarWhereInputSchema), z.lazy(() => ExchangeRateScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  rate: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  currencyId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  businessId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  branchId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+});
+
+export const BusinessCategoryUpsertWithWhereUniqueWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUpsertWithWhereUniqueWithoutBusinessesInput> = z.strictObject({
+  where: z.lazy(() => BusinessCategoryWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => BusinessCategoryUpdateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedUpdateWithoutBusinessesInputSchema) ]),
+  create: z.union([ z.lazy(() => BusinessCategoryCreateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedCreateWithoutBusinessesInputSchema) ]),
+});
+
+export const BusinessCategoryUpdateWithWhereUniqueWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUpdateWithWhereUniqueWithoutBusinessesInput> = z.strictObject({
+  where: z.lazy(() => BusinessCategoryWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => BusinessCategoryUpdateWithoutBusinessesInputSchema), z.lazy(() => BusinessCategoryUncheckedUpdateWithoutBusinessesInputSchema) ]),
+});
+
+export const BusinessCategoryUpdateManyWithWhereWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUpdateManyWithWhereWithoutBusinessesInput> = z.strictObject({
+  where: z.lazy(() => BusinessCategoryScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => BusinessCategoryUpdateManyMutationInputSchema), z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesInputSchema) ]),
+});
+
+export const BusinessCategoryScalarWhereInputSchema: z.ZodType<Prisma.BusinessCategoryScalarWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => BusinessCategoryScalarWhereInputSchema), z.lazy(() => BusinessCategoryScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => BusinessCategoryScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => BusinessCategoryScalarWhereInputSchema), z.lazy(() => BusinessCategoryScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
 });
 
 export const BusinessCreateWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessCreateWithoutTenantsInput> = z.strictObject({
@@ -3199,6 +4927,9 @@ export const BusinessCreateWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessC
   updatedAt: z.coerce.date().optional(),
   branches: z.lazy(() => BranchCreateNestedManyWithoutBusinessInputSchema).optional(),
   products: z.lazy(() => ProductCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessUncheckedCreateWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateWithoutTenantsInput> = z.strictObject({
@@ -3210,6 +4941,9 @@ export const BusinessUncheckedCreateWithoutTenantsInputSchema: z.ZodType<Prisma.
   updatedAt: z.coerce.date().optional(),
   branches: z.lazy(() => BranchUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessCreateOrConnectWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessCreateOrConnectWithoutTenantsInput> = z.strictObject({
@@ -3275,6 +5009,9 @@ export const BusinessUpdateWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessU
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   branches: z.lazy(() => BranchUpdateManyWithoutBusinessNestedInputSchema).optional(),
   products: z.lazy(() => ProductUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const BusinessUncheckedUpdateWithoutTenantsInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateWithoutTenantsInput> = z.strictObject({
@@ -3286,6 +5023,9 @@ export const BusinessUncheckedUpdateWithoutTenantsInputSchema: z.ZodType<Prisma.
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   branches: z.lazy(() => BranchUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const UserUpsertWithWhereUniqueWithoutTenantInputSchema: z.ZodType<Prisma.UserUpsertWithWhereUniqueWithoutTenantInput> = z.strictObject({
@@ -3329,6 +5069,9 @@ export const BusinessCreateWithoutBranchesInputSchema: z.ZodType<Prisma.Business
   updatedAt: z.coerce.date().optional(),
   tenants: z.lazy(() => TenantCreateNestedManyWithoutBusinessInputSchema).optional(),
   products: z.lazy(() => ProductCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessUncheckedCreateWithoutBranchesInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateWithoutBranchesInput> = z.strictObject({
@@ -3340,6 +5083,9 @@ export const BusinessUncheckedCreateWithoutBranchesInputSchema: z.ZodType<Prisma
   updatedAt: z.coerce.date().optional(),
   tenants: z.lazy(() => TenantUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessCreateOrConnectWithoutBranchesInputSchema: z.ZodType<Prisma.BusinessCreateOrConnectWithoutBranchesInput> = z.strictObject({
@@ -3394,8 +5140,10 @@ export const ProductCreateWithoutBranchInputSchema: z.ZodType<Prisma.ProductCrea
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
+  productCategory: z.lazy(() => ProductCategoryCreateNestedOneWithoutProductsInputSchema).optional(),
   business: z.lazy(() => BusinessCreateNestedOneWithoutProductsInputSchema),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductUncheckedCreateWithoutBranchInputSchema: z.ZodType<Prisma.ProductUncheckedCreateWithoutBranchInput> = z.strictObject({
@@ -3406,9 +5154,11 @@ export const ProductUncheckedCreateWithoutBranchInputSchema: z.ZodType<Prisma.Pr
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   businessId: z.string(),
   isDeleted: z.boolean().optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductCreateOrConnectWithoutBranchInputSchema: z.ZodType<Prisma.ProductCreateOrConnectWithoutBranchInput> = z.strictObject({
@@ -3477,6 +5227,32 @@ export const FavoritesCreateManyBranchInputEnvelopeSchema: z.ZodType<Prisma.Favo
   skipDuplicates: z.boolean().optional(),
 });
 
+export const ExchangeRateCreateWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateCreateWithoutBranchInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currency: z.lazy(() => CurrencyCreateNestedOneWithoutExchangeRatesInputSchema),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutExchangeRatesInputSchema),
+});
+
+export const ExchangeRateUncheckedCreateWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateWithoutBranchInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currencyId: z.string(),
+  businessId: z.string(),
+});
+
+export const ExchangeRateCreateOrConnectWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateCreateOrConnectWithoutBranchInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema) ]),
+});
+
+export const ExchangeRateCreateManyBranchInputEnvelopeSchema: z.ZodType<Prisma.ExchangeRateCreateManyBranchInputEnvelope> = z.strictObject({
+  data: z.union([ z.lazy(() => ExchangeRateCreateManyBranchInputSchema), z.lazy(() => ExchangeRateCreateManyBranchInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional(),
+});
+
 export const BusinessUpsertWithoutBranchesInputSchema: z.ZodType<Prisma.BusinessUpsertWithoutBranchesInput> = z.strictObject({
   update: z.union([ z.lazy(() => BusinessUpdateWithoutBranchesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutBranchesInputSchema) ]),
   create: z.union([ z.lazy(() => BusinessCreateWithoutBranchesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutBranchesInputSchema) ]),
@@ -3497,6 +5273,9 @@ export const BusinessUpdateWithoutBranchesInputSchema: z.ZodType<Prisma.Business
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   tenants: z.lazy(() => TenantUpdateManyWithoutBusinessNestedInputSchema).optional(),
   products: z.lazy(() => ProductUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const BusinessUncheckedUpdateWithoutBranchesInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateWithoutBranchesInput> = z.strictObject({
@@ -3508,6 +5287,9 @@ export const BusinessUncheckedUpdateWithoutBranchesInputSchema: z.ZodType<Prisma
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   tenants: z.lazy(() => TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const UserUpsertWithWhereUniqueWithoutBranchInputSchema: z.ZodType<Prisma.UserUpsertWithWhereUniqueWithoutBranchInput> = z.strictObject({
@@ -3600,6 +5382,22 @@ export const FavoritesScalarWhereInputSchema: z.ZodType<Prisma.FavoritesScalarWh
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
 });
 
+export const ExchangeRateUpsertWithWhereUniqueWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUpsertWithWhereUniqueWithoutBranchInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateWithoutBranchInputSchema) ]),
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutBranchInputSchema) ]),
+});
+
+export const ExchangeRateUpdateWithWhereUniqueWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUpdateWithWhereUniqueWithoutBranchInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ExchangeRateUpdateWithoutBranchInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateWithoutBranchInputSchema) ]),
+});
+
+export const ExchangeRateUpdateManyWithWhereWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyWithWhereWithoutBranchInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ExchangeRateUpdateManyMutationInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchInputSchema) ]),
+});
+
 export const TenantCreateWithoutUsersInputSchema: z.ZodType<Prisma.TenantCreateWithoutUsersInput> = z.strictObject({
   names: z.string(),
   maternal_surname: z.string(),
@@ -3637,6 +5435,7 @@ export const BranchCreateWithoutUsersInputSchema: z.ZodType<Prisma.BranchCreateW
   products: z.lazy(() => ProductCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUncheckedCreateWithoutUsersInputSchema: z.ZodType<Prisma.BranchUncheckedCreateWithoutUsersInput> = z.strictObject({
@@ -3649,6 +5448,7 @@ export const BranchUncheckedCreateWithoutUsersInputSchema: z.ZodType<Prisma.Bran
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchCreateOrConnectWithoutUsersInputSchema: z.ZodType<Prisma.BranchCreateOrConnectWithoutUsersInput> = z.strictObject({
@@ -3766,6 +5566,7 @@ export const BranchUpdateWithoutUsersInputSchema: z.ZodType<Prisma.BranchUpdateW
   products: z.lazy(() => ProductUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateWithoutUsersInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateWithoutUsersInput> = z.strictObject({
@@ -3778,6 +5579,7 @@ export const BranchUncheckedUpdateWithoutUsersInputSchema: z.ZodType<Prisma.Bran
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const ReviewsUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.ReviewsUpsertWithWhereUniqueWithoutUserInput> = z.strictObject({
@@ -3812,6 +5614,25 @@ export const FavoritesUpdateManyWithWhereWithoutUserInputSchema: z.ZodType<Prism
   data: z.union([ z.lazy(() => FavoritesUpdateManyMutationInputSchema), z.lazy(() => FavoritesUncheckedUpdateManyWithoutUserInputSchema) ]),
 });
 
+export const ProductCategoryCreateWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryCreateWithoutProductsInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutProductCategoriesInputSchema),
+});
+
+export const ProductCategoryUncheckedCreateWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedCreateWithoutProductsInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  businessId: z.string(),
+});
+
+export const ProductCategoryCreateOrConnectWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryCreateOrConnectWithoutProductsInput> = z.strictObject({
+  where: z.lazy(() => ProductCategoryWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutProductsInputSchema) ]),
+});
+
 export const BusinessCreateWithoutProductsInputSchema: z.ZodType<Prisma.BusinessCreateWithoutProductsInput> = z.strictObject({
   name: z.string(),
   slug: z.string(),
@@ -3821,6 +5642,9 @@ export const BusinessCreateWithoutProductsInputSchema: z.ZodType<Prisma.Business
   updatedAt: z.coerce.date().optional(),
   tenants: z.lazy(() => TenantCreateNestedManyWithoutBusinessInputSchema).optional(),
   branches: z.lazy(() => BranchCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessUncheckedCreateWithoutProductsInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateWithoutProductsInput> = z.strictObject({
@@ -3832,6 +5656,9 @@ export const BusinessUncheckedCreateWithoutProductsInputSchema: z.ZodType<Prisma
   updatedAt: z.coerce.date().optional(),
   tenants: z.lazy(() => TenantUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
   branches: z.lazy(() => BranchUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema).optional(),
 });
 
 export const BusinessCreateOrConnectWithoutProductsInputSchema: z.ZodType<Prisma.BusinessCreateOrConnectWithoutProductsInput> = z.strictObject({
@@ -3849,6 +5676,7 @@ export const BranchCreateWithoutProductsInputSchema: z.ZodType<Prisma.BranchCrea
   users: z.lazy(() => UserCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUncheckedCreateWithoutProductsInputSchema: z.ZodType<Prisma.BranchUncheckedCreateWithoutProductsInput> = z.strictObject({
@@ -3861,6 +5689,7 @@ export const BranchUncheckedCreateWithoutProductsInputSchema: z.ZodType<Prisma.B
   users: z.lazy(() => UserUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchCreateOrConnectWithoutProductsInputSchema: z.ZodType<Prisma.BranchCreateOrConnectWithoutProductsInput> = z.strictObject({
@@ -3896,6 +5725,55 @@ export const FavoritesCreateManyProductInputEnvelopeSchema: z.ZodType<Prisma.Fav
   skipDuplicates: z.boolean().optional(),
 });
 
+export const PriceCreateWithoutProductInputSchema: z.ZodType<Prisma.PriceCreateWithoutProductInput> = z.strictObject({
+  id: z.uuid().optional(),
+  type: z.lazy(() => PriceTypeSchema).optional(),
+  amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  quantity: z.number().optional(),
+});
+
+export const PriceUncheckedCreateWithoutProductInputSchema: z.ZodType<Prisma.PriceUncheckedCreateWithoutProductInput> = z.strictObject({
+  id: z.uuid().optional(),
+  type: z.lazy(() => PriceTypeSchema).optional(),
+  amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  quantity: z.number().optional(),
+});
+
+export const PriceCreateOrConnectWithoutProductInputSchema: z.ZodType<Prisma.PriceCreateOrConnectWithoutProductInput> = z.strictObject({
+  where: z.lazy(() => PriceWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PriceCreateWithoutProductInputSchema), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema) ]),
+});
+
+export const PriceCreateManyProductInputEnvelopeSchema: z.ZodType<Prisma.PriceCreateManyProductInputEnvelope> = z.strictObject({
+  data: z.union([ z.lazy(() => PriceCreateManyProductInputSchema), z.lazy(() => PriceCreateManyProductInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional(),
+});
+
+export const ProductCategoryUpsertWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryUpsertWithoutProductsInput> = z.strictObject({
+  update: z.union([ z.lazy(() => ProductCategoryUpdateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedUpdateWithoutProductsInputSchema) ]),
+  create: z.union([ z.lazy(() => ProductCategoryCreateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedCreateWithoutProductsInputSchema) ]),
+  where: z.lazy(() => ProductCategoryWhereInputSchema).optional(),
+});
+
+export const ProductCategoryUpdateToOneWithWhereWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryUpdateToOneWithWhereWithoutProductsInput> = z.strictObject({
+  where: z.lazy(() => ProductCategoryWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => ProductCategoryUpdateWithoutProductsInputSchema), z.lazy(() => ProductCategoryUncheckedUpdateWithoutProductsInputSchema) ]),
+});
+
+export const ProductCategoryUpdateWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryUpdateWithoutProductsInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductCategoriesNestedInputSchema).optional(),
+});
+
+export const ProductCategoryUncheckedUpdateWithoutProductsInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedUpdateWithoutProductsInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
 export const BusinessUpsertWithoutProductsInputSchema: z.ZodType<Prisma.BusinessUpsertWithoutProductsInput> = z.strictObject({
   update: z.union([ z.lazy(() => BusinessUpdateWithoutProductsInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutProductsInputSchema) ]),
   create: z.union([ z.lazy(() => BusinessCreateWithoutProductsInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutProductsInputSchema) ]),
@@ -3916,6 +5794,9 @@ export const BusinessUpdateWithoutProductsInputSchema: z.ZodType<Prisma.Business
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   tenants: z.lazy(() => TenantUpdateManyWithoutBusinessNestedInputSchema).optional(),
   branches: z.lazy(() => BranchUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const BusinessUncheckedUpdateWithoutProductsInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateWithoutProductsInput> = z.strictObject({
@@ -3927,6 +5808,9 @@ export const BusinessUncheckedUpdateWithoutProductsInputSchema: z.ZodType<Prisma
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   tenants: z.lazy(() => TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
   branches: z.lazy(() => BranchUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema).optional(),
 });
 
 export const BranchUpsertWithoutProductsInputSchema: z.ZodType<Prisma.BranchUpsertWithoutProductsInput> = z.strictObject({
@@ -3950,6 +5834,7 @@ export const BranchUpdateWithoutProductsInputSchema: z.ZodType<Prisma.BranchUpda
   users: z.lazy(() => UserUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateWithoutProductsInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateWithoutProductsInput> = z.strictObject({
@@ -3962,6 +5847,7 @@ export const BranchUncheckedUpdateWithoutProductsInputSchema: z.ZodType<Prisma.B
   users: z.lazy(() => UserUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const FavoritesUpsertWithWhereUniqueWithoutProductInputSchema: z.ZodType<Prisma.FavoritesUpsertWithWhereUniqueWithoutProductInput> = z.strictObject({
@@ -3980,6 +5866,33 @@ export const FavoritesUpdateManyWithWhereWithoutProductInputSchema: z.ZodType<Pr
   data: z.union([ z.lazy(() => FavoritesUpdateManyMutationInputSchema), z.lazy(() => FavoritesUncheckedUpdateManyWithoutProductInputSchema) ]),
 });
 
+export const PriceUpsertWithWhereUniqueWithoutProductInputSchema: z.ZodType<Prisma.PriceUpsertWithWhereUniqueWithoutProductInput> = z.strictObject({
+  where: z.lazy(() => PriceWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => PriceUpdateWithoutProductInputSchema), z.lazy(() => PriceUncheckedUpdateWithoutProductInputSchema) ]),
+  create: z.union([ z.lazy(() => PriceCreateWithoutProductInputSchema), z.lazy(() => PriceUncheckedCreateWithoutProductInputSchema) ]),
+});
+
+export const PriceUpdateWithWhereUniqueWithoutProductInputSchema: z.ZodType<Prisma.PriceUpdateWithWhereUniqueWithoutProductInput> = z.strictObject({
+  where: z.lazy(() => PriceWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => PriceUpdateWithoutProductInputSchema), z.lazy(() => PriceUncheckedUpdateWithoutProductInputSchema) ]),
+});
+
+export const PriceUpdateManyWithWhereWithoutProductInputSchema: z.ZodType<Prisma.PriceUpdateManyWithWhereWithoutProductInput> = z.strictObject({
+  where: z.lazy(() => PriceScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => PriceUpdateManyMutationInputSchema), z.lazy(() => PriceUncheckedUpdateManyWithoutProductInputSchema) ]),
+});
+
+export const PriceScalarWhereInputSchema: z.ZodType<Prisma.PriceScalarWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => PriceScalarWhereInputSchema), z.lazy(() => PriceScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PriceScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PriceScalarWhereInputSchema), z.lazy(() => PriceScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumPriceTypeFilterSchema), z.lazy(() => PriceTypeSchema) ]).optional(),
+  amount: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
+  quantity: z.union([ z.lazy(() => FloatFilterSchema), z.number() ]).optional(),
+  productId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+});
+
 export const BranchCreateWithoutReviewsInputSchema: z.ZodType<Prisma.BranchCreateWithoutReviewsInput> = z.strictObject({
   name: z.string(),
   address: z.string().optional().nullable(),
@@ -3990,6 +5903,7 @@ export const BranchCreateWithoutReviewsInputSchema: z.ZodType<Prisma.BranchCreat
   users: z.lazy(() => UserCreateNestedManyWithoutBranchInputSchema).optional(),
   products: z.lazy(() => ProductCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUncheckedCreateWithoutReviewsInputSchema: z.ZodType<Prisma.BranchUncheckedCreateWithoutReviewsInput> = z.strictObject({
@@ -4002,6 +5916,7 @@ export const BranchUncheckedCreateWithoutReviewsInputSchema: z.ZodType<Prisma.Br
   users: z.lazy(() => UserUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchCreateOrConnectWithoutReviewsInputSchema: z.ZodType<Prisma.BranchCreateOrConnectWithoutReviewsInput> = z.strictObject({
@@ -4063,6 +5978,7 @@ export const BranchUpdateWithoutReviewsInputSchema: z.ZodType<Prisma.BranchUpdat
   users: z.lazy(() => UserUpdateManyWithoutBranchNestedInputSchema).optional(),
   products: z.lazy(() => ProductUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateWithoutReviewsInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateWithoutReviewsInput> = z.strictObject({
@@ -4075,6 +5991,7 @@ export const BranchUncheckedUpdateWithoutReviewsInputSchema: z.ZodType<Prisma.Br
   users: z.lazy(() => UserUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const UserUpsertWithoutReviewsInputSchema: z.ZodType<Prisma.UserUpsertWithoutReviewsInput> = z.strictObject({
@@ -4125,8 +6042,10 @@ export const ProductCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.ProductC
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
+  productCategory: z.lazy(() => ProductCategoryCreateNestedOneWithoutProductsInputSchema).optional(),
   business: z.lazy(() => BusinessCreateNestedOneWithoutProductsInputSchema),
   branch: z.lazy(() => BranchCreateNestedOneWithoutProductsInputSchema).optional(),
+  prices: z.lazy(() => PriceCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductUncheckedCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.ProductUncheckedCreateWithoutFavoritesInput> = z.strictObject({
@@ -4137,9 +6056,11 @@ export const ProductUncheckedCreateWithoutFavoritesInputSchema: z.ZodType<Prisma
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   businessId: z.string(),
   branchId: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
+  prices: z.lazy(() => PriceUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
 });
 
 export const ProductCreateOrConnectWithoutFavoritesInputSchema: z.ZodType<Prisma.ProductCreateOrConnectWithoutFavoritesInput> = z.strictObject({
@@ -4157,6 +6078,7 @@ export const BranchCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.BranchCre
   users: z.lazy(() => UserCreateNestedManyWithoutBranchInputSchema).optional(),
   products: z.lazy(() => ProductCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchUncheckedCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.BranchUncheckedCreateWithoutFavoritesInput> = z.strictObject({
@@ -4169,6 +6091,7 @@ export const BranchUncheckedCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.
   users: z.lazy(() => UserUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
 });
 
 export const BranchCreateOrConnectWithoutFavoritesInputSchema: z.ZodType<Prisma.BranchCreateOrConnectWithoutFavoritesInput> = z.strictObject({
@@ -4229,8 +6152,10 @@ export const ProductUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma.ProductU
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  productCategory: z.lazy(() => ProductCategoryUpdateOneWithoutProductsNestedInputSchema).optional(),
   business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductsNestedInputSchema).optional(),
   branch: z.lazy(() => BranchUpdateOneWithoutProductsNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductUncheckedUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateWithoutFavoritesInput> = z.strictObject({
@@ -4241,9 +6166,11 @@ export const ProductUncheckedUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  prices: z.lazy(() => PriceUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const BranchUpsertWithoutFavoritesInputSchema: z.ZodType<Prisma.BranchUpsertWithoutFavoritesInput> = z.strictObject({
@@ -4267,6 +6194,7 @@ export const BranchUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma.BranchUpd
   users: z.lazy(() => UserUpdateManyWithoutBranchNestedInputSchema).optional(),
   products: z.lazy(() => ProductUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateWithoutFavoritesInput> = z.strictObject({
@@ -4279,6 +6207,7 @@ export const BranchUncheckedUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma.
   users: z.lazy(() => UserUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const UserUpsertWithoutFavoritesInputSchema: z.ZodType<Prisma.UserUpsertWithoutFavoritesInput> = z.strictObject({
@@ -4320,6 +6249,493 @@ export const UserUncheckedUpdateWithoutFavoritesInputSchema: z.ZodType<Prisma.Us
   reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 });
 
+export const BusinessCreateWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessCreateWithoutCategoriesInput> = z.strictObject({
+  name: z.string(),
+  slug: z.string(),
+  rfc: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  tenants: z.lazy(() => TenantCreateNestedManyWithoutBusinessInputSchema).optional(),
+  branches: z.lazy(() => BranchCreateNestedManyWithoutBusinessInputSchema).optional(),
+  products: z.lazy(() => ProductCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBusinessInputSchema).optional(),
+});
+
+export const BusinessUncheckedCreateWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateWithoutCategoriesInput> = z.strictObject({
+  name: z.string(),
+  slug: z.string(),
+  rfc: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  tenants: z.lazy(() => TenantUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  branches: z.lazy(() => BranchUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+});
+
+export const BusinessCreateOrConnectWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessCreateOrConnectWithoutCategoriesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => BusinessCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema) ]),
+});
+
+export const BusinessUpsertWithWhereUniqueWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUpsertWithWhereUniqueWithoutCategoriesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => BusinessUpdateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutCategoriesInputSchema) ]),
+  create: z.union([ z.lazy(() => BusinessCreateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutCategoriesInputSchema) ]),
+});
+
+export const BusinessUpdateWithWhereUniqueWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUpdateWithWhereUniqueWithoutCategoriesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => BusinessUpdateWithoutCategoriesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutCategoriesInputSchema) ]),
+});
+
+export const BusinessUpdateManyWithWhereWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUpdateManyWithWhereWithoutCategoriesInput> = z.strictObject({
+  where: z.lazy(() => BusinessScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => BusinessUpdateManyMutationInputSchema), z.lazy(() => BusinessUncheckedUpdateManyWithoutCategoriesInputSchema) ]),
+});
+
+export const BusinessScalarWhereInputSchema: z.ZodType<Prisma.BusinessScalarWhereInput> = z.strictObject({
+  AND: z.union([ z.lazy(() => BusinessScalarWhereInputSchema), z.lazy(() => BusinessScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => BusinessScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => BusinessScalarWhereInputSchema), z.lazy(() => BusinessScalarWhereInputSchema).array() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  slug: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  rfc: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+});
+
+export const BusinessCreateWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessCreateWithoutProductCategoriesInput> = z.strictObject({
+  name: z.string(),
+  slug: z.string(),
+  rfc: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  tenants: z.lazy(() => TenantCreateNestedManyWithoutBusinessInputSchema).optional(),
+  branches: z.lazy(() => BranchCreateNestedManyWithoutBusinessInputSchema).optional(),
+  products: z.lazy(() => ProductCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema).optional(),
+});
+
+export const BusinessUncheckedCreateWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateWithoutProductCategoriesInput> = z.strictObject({
+  name: z.string(),
+  slug: z.string(),
+  rfc: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  tenants: z.lazy(() => TenantUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  branches: z.lazy(() => BranchUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema).optional(),
+});
+
+export const BusinessCreateOrConnectWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessCreateOrConnectWithoutProductCategoriesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => BusinessCreateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutProductCategoriesInputSchema) ]),
+});
+
+export const ProductCreateWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductCreateWithoutProductCategoryInput> = z.strictObject({
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  imageUrl: z.string().optional().nullable(),
+  isDeleted: z.boolean().optional(),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutProductsInputSchema),
+  branch: z.lazy(() => BranchCreateNestedOneWithoutProductsInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceCreateNestedManyWithoutProductInputSchema).optional(),
+});
+
+export const ProductUncheckedCreateWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUncheckedCreateWithoutProductCategoryInput> = z.strictObject({
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  imageUrl: z.string().optional().nullable(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+  isDeleted: z.boolean().optional(),
+  favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
+});
+
+export const ProductCreateOrConnectWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductCreateOrConnectWithoutProductCategoryInput> = z.strictObject({
+  where: z.lazy(() => ProductWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ProductCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema) ]),
+});
+
+export const ProductCreateManyProductCategoryInputEnvelopeSchema: z.ZodType<Prisma.ProductCreateManyProductCategoryInputEnvelope> = z.strictObject({
+  data: z.union([ z.lazy(() => ProductCreateManyProductCategoryInputSchema), z.lazy(() => ProductCreateManyProductCategoryInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional(),
+});
+
+export const BusinessUpsertWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessUpsertWithoutProductCategoriesInput> = z.strictObject({
+  update: z.union([ z.lazy(() => BusinessUpdateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutProductCategoriesInputSchema) ]),
+  create: z.union([ z.lazy(() => BusinessCreateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutProductCategoriesInputSchema) ]),
+  where: z.lazy(() => BusinessWhereInputSchema).optional(),
+});
+
+export const BusinessUpdateToOneWithWhereWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessUpdateToOneWithWhereWithoutProductCategoriesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => BusinessUpdateWithoutProductCategoriesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutProductCategoriesInputSchema) ]),
+});
+
+export const BusinessUpdateWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessUpdateWithoutProductCategoriesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  tenants: z.lazy(() => TenantUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  branches: z.lazy(() => BranchUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema).optional(),
+});
+
+export const BusinessUncheckedUpdateWithoutProductCategoriesInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateWithoutProductCategoriesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  tenants: z.lazy(() => TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  branches: z.lazy(() => BranchUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema).optional(),
+});
+
+export const ProductUpsertWithWhereUniqueWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUpsertWithWhereUniqueWithoutProductCategoryInput> = z.strictObject({
+  where: z.lazy(() => ProductWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ProductUpdateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedUpdateWithoutProductCategoryInputSchema) ]),
+  create: z.union([ z.lazy(() => ProductCreateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedCreateWithoutProductCategoryInputSchema) ]),
+});
+
+export const ProductUpdateWithWhereUniqueWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUpdateWithWhereUniqueWithoutProductCategoryInput> = z.strictObject({
+  where: z.lazy(() => ProductWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ProductUpdateWithoutProductCategoryInputSchema), z.lazy(() => ProductUncheckedUpdateWithoutProductCategoryInputSchema) ]),
+});
+
+export const ProductUpdateManyWithWhereWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUpdateManyWithWhereWithoutProductCategoryInput> = z.strictObject({
+  where: z.lazy(() => ProductScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ProductUpdateManyMutationInputSchema), z.lazy(() => ProductUncheckedUpdateManyWithoutProductCategoryInputSchema) ]),
+});
+
+export const ProductCreateWithoutPricesInputSchema: z.ZodType<Prisma.ProductCreateWithoutPricesInput> = z.strictObject({
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  imageUrl: z.string().optional().nullable(),
+  isDeleted: z.boolean().optional(),
+  productCategory: z.lazy(() => ProductCategoryCreateNestedOneWithoutProductsInputSchema).optional(),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutProductsInputSchema),
+  branch: z.lazy(() => BranchCreateNestedOneWithoutProductsInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesCreateNestedManyWithoutProductInputSchema).optional(),
+});
+
+export const ProductUncheckedCreateWithoutPricesInputSchema: z.ZodType<Prisma.ProductUncheckedCreateWithoutPricesInput> = z.strictObject({
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+  isDeleted: z.boolean().optional(),
+  favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutProductInputSchema).optional(),
+});
+
+export const ProductCreateOrConnectWithoutPricesInputSchema: z.ZodType<Prisma.ProductCreateOrConnectWithoutPricesInput> = z.strictObject({
+  where: z.lazy(() => ProductWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ProductCreateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedCreateWithoutPricesInputSchema) ]),
+});
+
+export const ProductUpsertWithoutPricesInputSchema: z.ZodType<Prisma.ProductUpsertWithoutPricesInput> = z.strictObject({
+  update: z.union([ z.lazy(() => ProductUpdateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedUpdateWithoutPricesInputSchema) ]),
+  create: z.union([ z.lazy(() => ProductCreateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedCreateWithoutPricesInputSchema) ]),
+  where: z.lazy(() => ProductWhereInputSchema).optional(),
+});
+
+export const ProductUpdateToOneWithWhereWithoutPricesInputSchema: z.ZodType<Prisma.ProductUpdateToOneWithWhereWithoutPricesInput> = z.strictObject({
+  where: z.lazy(() => ProductWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => ProductUpdateWithoutPricesInputSchema), z.lazy(() => ProductUncheckedUpdateWithoutPricesInputSchema) ]),
+});
+
+export const ProductUpdateWithoutPricesInputSchema: z.ZodType<Prisma.ProductUpdateWithoutPricesInput> = z.strictObject({
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  productCategory: z.lazy(() => ProductCategoryUpdateOneWithoutProductsNestedInputSchema).optional(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductsNestedInputSchema).optional(),
+  branch: z.lazy(() => BranchUpdateOneWithoutProductsNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesUpdateManyWithoutProductNestedInputSchema).optional(),
+});
+
+export const ProductUncheckedUpdateWithoutPricesInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateWithoutPricesInput> = z.strictObject({
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
+});
+
+export const ExchangeRateCreateWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateCreateWithoutCurrencyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutExchangeRatesInputSchema),
+  branch: z.lazy(() => BranchCreateNestedOneWithoutExchangeRatesInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedCreateWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedCreateWithoutCurrencyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+});
+
+export const ExchangeRateCreateOrConnectWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateCreateOrConnectWithoutCurrencyInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema) ]),
+});
+
+export const ExchangeRateCreateManyCurrencyInputEnvelopeSchema: z.ZodType<Prisma.ExchangeRateCreateManyCurrencyInputEnvelope> = z.strictObject({
+  data: z.union([ z.lazy(() => ExchangeRateCreateManyCurrencyInputSchema), z.lazy(() => ExchangeRateCreateManyCurrencyInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional(),
+});
+
+export const ExchangeRateUpsertWithWhereUniqueWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUpsertWithWhereUniqueWithoutCurrencyInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ExchangeRateUpdateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateWithoutCurrencyInputSchema) ]),
+  create: z.union([ z.lazy(() => ExchangeRateCreateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedCreateWithoutCurrencyInputSchema) ]),
+});
+
+export const ExchangeRateUpdateWithWhereUniqueWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUpdateWithWhereUniqueWithoutCurrencyInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ExchangeRateUpdateWithoutCurrencyInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateWithoutCurrencyInputSchema) ]),
+});
+
+export const ExchangeRateUpdateManyWithWhereWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUpdateManyWithWhereWithoutCurrencyInput> = z.strictObject({
+  where: z.lazy(() => ExchangeRateScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ExchangeRateUpdateManyMutationInputSchema), z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutCurrencyInputSchema) ]),
+});
+
+export const CurrencyCreateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyCreateWithoutExchangeRatesInput> = z.strictObject({
+  id: z.uuid().optional(),
+  code: z.string(),
+  active: z.boolean().optional(),
+});
+
+export const CurrencyUncheckedCreateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyUncheckedCreateWithoutExchangeRatesInput> = z.strictObject({
+  id: z.uuid().optional(),
+  code: z.string(),
+  active: z.boolean().optional(),
+});
+
+export const CurrencyCreateOrConnectWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyCreateOrConnectWithoutExchangeRatesInput> = z.strictObject({
+  where: z.lazy(() => CurrencyWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CurrencyCreateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedCreateWithoutExchangeRatesInputSchema) ]),
+});
+
+export const BusinessCreateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessCreateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.string(),
+  slug: z.string(),
+  rfc: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  tenants: z.lazy(() => TenantCreateNestedManyWithoutBusinessInputSchema).optional(),
+  branches: z.lazy(() => BranchCreateNestedManyWithoutBusinessInputSchema).optional(),
+  products: z.lazy(() => ProductCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryCreateNestedManyWithoutBusinessesInputSchema).optional(),
+});
+
+export const BusinessUncheckedCreateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessUncheckedCreateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.string(),
+  slug: z.string(),
+  rfc: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  tenants: z.lazy(() => TenantUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  branches: z.lazy(() => BranchUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedCreateNestedManyWithoutBusinessInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedCreateNestedManyWithoutBusinessesInputSchema).optional(),
+});
+
+export const BusinessCreateOrConnectWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessCreateOrConnectWithoutExchangeRatesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => BusinessCreateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutExchangeRatesInputSchema) ]),
+});
+
+export const BranchCreateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchCreateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.string(),
+  address: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  business: z.lazy(() => BusinessCreateNestedOneWithoutBranchesInputSchema),
+  users: z.lazy(() => UserCreateNestedManyWithoutBranchInputSchema).optional(),
+  products: z.lazy(() => ProductCreateNestedManyWithoutBranchInputSchema).optional(),
+  reviews: z.lazy(() => ReviewsCreateNestedManyWithoutBranchInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesCreateNestedManyWithoutBranchInputSchema).optional(),
+});
+
+export const BranchUncheckedCreateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchUncheckedCreateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.string(),
+  address: z.string().optional().nullable(),
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  businessId: z.string(),
+  users: z.lazy(() => UserUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  reviews: z.lazy(() => ReviewsUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesUncheckedCreateNestedManyWithoutBranchInputSchema).optional(),
+});
+
+export const BranchCreateOrConnectWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchCreateOrConnectWithoutExchangeRatesInput> = z.strictObject({
+  where: z.lazy(() => BranchWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => BranchCreateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedCreateWithoutExchangeRatesInputSchema) ]),
+});
+
+export const CurrencyUpsertWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyUpsertWithoutExchangeRatesInput> = z.strictObject({
+  update: z.union([ z.lazy(() => CurrencyUpdateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedUpdateWithoutExchangeRatesInputSchema) ]),
+  create: z.union([ z.lazy(() => CurrencyCreateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedCreateWithoutExchangeRatesInputSchema) ]),
+  where: z.lazy(() => CurrencyWhereInputSchema).optional(),
+});
+
+export const CurrencyUpdateToOneWithWhereWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyUpdateToOneWithWhereWithoutExchangeRatesInput> = z.strictObject({
+  where: z.lazy(() => CurrencyWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CurrencyUpdateWithoutExchangeRatesInputSchema), z.lazy(() => CurrencyUncheckedUpdateWithoutExchangeRatesInputSchema) ]),
+});
+
+export const CurrencyUpdateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyUpdateWithoutExchangeRatesInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  code: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  active: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const CurrencyUncheckedUpdateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.CurrencyUncheckedUpdateWithoutExchangeRatesInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  code: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  active: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const BusinessUpsertWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessUpsertWithoutExchangeRatesInput> = z.strictObject({
+  update: z.union([ z.lazy(() => BusinessUpdateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutExchangeRatesInputSchema) ]),
+  create: z.union([ z.lazy(() => BusinessCreateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedCreateWithoutExchangeRatesInputSchema) ]),
+  where: z.lazy(() => BusinessWhereInputSchema).optional(),
+});
+
+export const BusinessUpdateToOneWithWhereWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessUpdateToOneWithWhereWithoutExchangeRatesInput> = z.strictObject({
+  where: z.lazy(() => BusinessWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => BusinessUpdateWithoutExchangeRatesInputSchema), z.lazy(() => BusinessUncheckedUpdateWithoutExchangeRatesInputSchema) ]),
+});
+
+export const BusinessUpdateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessUpdateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  tenants: z.lazy(() => TenantUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  branches: z.lazy(() => BranchUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUpdateManyWithoutBusinessesNestedInputSchema).optional(),
+});
+
+export const BusinessUncheckedUpdateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  tenants: z.lazy(() => TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  branches: z.lazy(() => BranchUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  categories: z.lazy(() => BusinessCategoryUncheckedUpdateManyWithoutBusinessesNestedInputSchema).optional(),
+});
+
+export const BranchUpsertWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchUpsertWithoutExchangeRatesInput> = z.strictObject({
+  update: z.union([ z.lazy(() => BranchUpdateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedUpdateWithoutExchangeRatesInputSchema) ]),
+  create: z.union([ z.lazy(() => BranchCreateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedCreateWithoutExchangeRatesInputSchema) ]),
+  where: z.lazy(() => BranchWhereInputSchema).optional(),
+});
+
+export const BranchUpdateToOneWithWhereWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchUpdateToOneWithWhereWithoutExchangeRatesInput> = z.strictObject({
+  where: z.lazy(() => BranchWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => BranchUpdateWithoutExchangeRatesInputSchema), z.lazy(() => BranchUncheckedUpdateWithoutExchangeRatesInputSchema) ]),
+});
+
+export const BranchUpdateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchUpdateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutBranchesNestedInputSchema).optional(),
+  users: z.lazy(() => UserUpdateManyWithoutBranchNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUpdateManyWithoutBranchNestedInputSchema).optional(),
+  reviews: z.lazy(() => ReviewsUpdateManyWithoutBranchNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesUpdateManyWithoutBranchNestedInputSchema).optional(),
+});
+
+export const BranchUncheckedUpdateWithoutExchangeRatesInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateWithoutExchangeRatesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  address: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  users: z.lazy(() => UserUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+});
+
 export const TenantCreateManyBusinessInputSchema: z.ZodType<Prisma.TenantCreateManyBusinessInput> = z.strictObject({
   names: z.string(),
   maternal_surname: z.string(),
@@ -4346,8 +6762,23 @@ export const ProductCreateManyBusinessInputSchema: z.ZodType<Prisma.ProductCreat
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   branchId: z.string().optional().nullable(),
   isDeleted: z.boolean().optional(),
+});
+
+export const ProductCategoryCreateManyBusinessInputSchema: z.ZodType<Prisma.ProductCategoryCreateManyBusinessInput> = z.strictObject({
+  id: z.uuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+});
+
+export const ExchangeRateCreateManyBusinessInputSchema: z.ZodType<Prisma.ExchangeRateCreateManyBusinessInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currencyId: z.string(),
+  branchId: z.string().optional().nullable(),
 });
 
 export const TenantUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.TenantUpdateWithoutBusinessInput> = z.strictObject({
@@ -4392,6 +6823,7 @@ export const BranchUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.BranchUpda
   products: z.lazy(() => ProductUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateWithoutBusinessInput> = z.strictObject({
@@ -4404,6 +6836,7 @@ export const BranchUncheckedUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.B
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   reviews: z.lazy(() => ReviewsUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBranchNestedInputSchema).optional(),
 });
 
 export const BranchUncheckedUpdateManyWithoutBusinessInputSchema: z.ZodType<Prisma.BranchUncheckedUpdateManyWithoutBusinessInput> = z.strictObject({
@@ -4423,8 +6856,10 @@ export const ProductUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductUp
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  productCategory: z.lazy(() => ProductCategoryUpdateOneWithoutProductsNestedInputSchema).optional(),
   branch: z.lazy(() => BranchUpdateOneWithoutProductsNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductUncheckedUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateWithoutBusinessInput> = z.strictObject({
@@ -4435,9 +6870,11 @@ export const ProductUncheckedUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductUncheckedUpdateManyWithoutBusinessInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateManyWithoutBusinessInput> = z.strictObject({
@@ -4448,8 +6885,71 @@ export const ProductUncheckedUpdateManyWithoutBusinessInputSchema: z.ZodType<Pri
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ProductCategoryUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUpdateWithoutBusinessInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  products: z.lazy(() => ProductUpdateManyWithoutProductCategoryNestedInputSchema).optional(),
+});
+
+export const ProductCategoryUncheckedUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedUpdateWithoutBusinessInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  products: z.lazy(() => ProductUncheckedUpdateManyWithoutProductCategoryNestedInputSchema).optional(),
+});
+
+export const ProductCategoryUncheckedUpdateManyWithoutBusinessInputSchema: z.ZodType<Prisma.ProductCategoryUncheckedUpdateManyWithoutBusinessInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const ExchangeRateUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUpdateWithoutBusinessInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currency: z.lazy(() => CurrencyUpdateOneRequiredWithoutExchangeRatesNestedInputSchema).optional(),
+  branch: z.lazy(() => BranchUpdateOneWithoutExchangeRatesNestedInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateWithoutBusinessInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currencyId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const ExchangeRateUncheckedUpdateManyWithoutBusinessInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyWithoutBusinessInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currencyId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const BusinessCategoryUpdateWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUpdateWithoutBusinessesInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const BusinessCategoryUncheckedUpdateWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedUpdateWithoutBusinessesInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const BusinessCategoryUncheckedUpdateManyWithoutBusinessesInputSchema: z.ZodType<Prisma.BusinessCategoryUncheckedUpdateManyWithoutBusinessesInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 });
 
 export const UserCreateManyTenantInputSchema: z.ZodType<Prisma.UserCreateManyTenantInput> = z.strictObject({
@@ -4524,6 +7024,7 @@ export const ProductCreateManyBranchInputSchema: z.ZodType<Prisma.ProductCreateM
   description: z.string().optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   imageUrl: z.string().optional().nullable(),
+  productCategoryId: z.string().optional().nullable(),
   businessId: z.string(),
   isDeleted: z.boolean().optional(),
 });
@@ -4544,6 +7045,14 @@ export const FavoritesCreateManyBranchInputSchema: z.ZodType<Prisma.FavoritesCre
   type: z.lazy(() => FavoriteTypeSchema).optional(),
   productId: z.string().optional().nullable(),
   userId: z.string(),
+});
+
+export const ExchangeRateCreateManyBranchInputSchema: z.ZodType<Prisma.ExchangeRateCreateManyBranchInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  currencyId: z.string(),
+  businessId: z.string(),
 });
 
 export const UserUpdateWithoutBranchInputSchema: z.ZodType<Prisma.UserUpdateWithoutBranchInput> = z.strictObject({
@@ -4595,8 +7104,10 @@ export const ProductUpdateWithoutBranchInputSchema: z.ZodType<Prisma.ProductUpda
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  productCategory: z.lazy(() => ProductCategoryUpdateOneWithoutProductsNestedInputSchema).optional(),
   business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductsNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoritesUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductUncheckedUpdateWithoutBranchInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateWithoutBranchInput> = z.strictObject({
@@ -4607,9 +7118,11 @@ export const ProductUncheckedUpdateWithoutBranchInputSchema: z.ZodType<Prisma.Pr
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
 });
 
 export const ProductUncheckedUpdateManyWithoutBranchInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateManyWithoutBranchInput> = z.strictObject({
@@ -4620,6 +7133,7 @@ export const ProductUncheckedUpdateManyWithoutBranchInputSchema: z.ZodType<Prism
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  productCategoryId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
 });
@@ -4676,6 +7190,30 @@ export const FavoritesUncheckedUpdateManyWithoutBranchInputSchema: z.ZodType<Pri
   type: z.union([ z.lazy(() => FavoriteTypeSchema), z.lazy(() => EnumFavoriteTypeFieldUpdateOperationsInputSchema) ]).optional(),
   productId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ExchangeRateUpdateWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUpdateWithoutBranchInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currency: z.lazy(() => CurrencyUpdateOneRequiredWithoutExchangeRatesNestedInputSchema).optional(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutExchangeRatesNestedInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateWithoutBranchInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currencyId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateManyWithoutBranchInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyWithoutBranchInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  currencyId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 });
 
 export const ReviewsCreateManyUserInputSchema: z.ZodType<Prisma.ReviewsCreateManyUserInput> = z.strictObject({
@@ -4759,6 +7297,13 @@ export const FavoritesCreateManyProductInputSchema: z.ZodType<Prisma.FavoritesCr
   userId: z.string(),
 });
 
+export const PriceCreateManyProductInputSchema: z.ZodType<Prisma.PriceCreateManyProductInput> = z.strictObject({
+  id: z.uuid().optional(),
+  type: z.lazy(() => PriceTypeSchema).optional(),
+  amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  quantity: z.number().optional(),
+});
+
 export const FavoritesUpdateWithoutProductInputSchema: z.ZodType<Prisma.FavoritesUpdateWithoutProductInput> = z.strictObject({
   id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -4784,6 +7329,152 @@ export const FavoritesUncheckedUpdateManyWithoutProductInputSchema: z.ZodType<Pr
   type: z.union([ z.lazy(() => FavoriteTypeSchema), z.lazy(() => EnumFavoriteTypeFieldUpdateOperationsInputSchema) ]).optional(),
   branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const PriceUpdateWithoutProductInputSchema: z.ZodType<Prisma.PriceUpdateWithoutProductInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const PriceUncheckedUpdateWithoutProductInputSchema: z.ZodType<Prisma.PriceUncheckedUpdateWithoutProductInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const PriceUncheckedUpdateManyWithoutProductInputSchema: z.ZodType<Prisma.PriceUncheckedUpdateManyWithoutProductInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => PriceTypeSchema), z.lazy(() => EnumPriceTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  quantity: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const BusinessUpdateWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUpdateWithoutCategoriesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  tenants: z.lazy(() => TenantUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  branches: z.lazy(() => BranchUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUpdateManyWithoutBusinessNestedInputSchema).optional(),
+});
+
+export const BusinessUncheckedUpdateWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateWithoutCategoriesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  tenants: z.lazy(() => TenantUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  branches: z.lazy(() => BranchUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  products: z.lazy(() => ProductUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  productCategories: z.lazy(() => ProductCategoryUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+  exchangeRates: z.lazy(() => ExchangeRateUncheckedUpdateManyWithoutBusinessNestedInputSchema).optional(),
+});
+
+export const BusinessUncheckedUpdateManyWithoutCategoriesInputSchema: z.ZodType<Prisma.BusinessUncheckedUpdateManyWithoutCategoriesInput> = z.strictObject({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rfc: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ProductCreateManyProductCategoryInputSchema: z.ZodType<Prisma.ProductCreateManyProductCategoryInput> = z.strictObject({
+  id: z.cuid().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  imageUrl: z.string().optional().nullable(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+  isDeleted: z.boolean().optional(),
+});
+
+export const ProductUpdateWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUpdateWithoutProductCategoryInput> = z.strictObject({
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutProductsNestedInputSchema).optional(),
+  branch: z.lazy(() => BranchUpdateOneWithoutProductsNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoritesUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUpdateManyWithoutProductNestedInputSchema).optional(),
+});
+
+export const ProductUncheckedUpdateWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateWithoutProductCategoryInput> = z.strictObject({
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  favorites: z.lazy(() => FavoritesUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
+  prices: z.lazy(() => PriceUncheckedUpdateManyWithoutProductNestedInputSchema).optional(),
+});
+
+export const ProductUncheckedUpdateManyWithoutProductCategoryInputSchema: z.ZodType<Prisma.ProductUncheckedUpdateManyWithoutProductCategoryInput> = z.strictObject({
+  id: z.union([ z.cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  imageUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isDeleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+});
+
+export const ExchangeRateCreateManyCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateCreateManyCurrencyInput> = z.strictObject({
+  id: z.uuid().optional(),
+  rate: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
+  updatedAt: z.coerce.date().optional(),
+  businessId: z.string(),
+  branchId: z.string().optional().nullable(),
+});
+
+export const ExchangeRateUpdateWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUpdateWithoutCurrencyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  business: z.lazy(() => BusinessUpdateOneRequiredWithoutExchangeRatesNestedInputSchema).optional(),
+  branch: z.lazy(() => BranchUpdateOneWithoutExchangeRatesNestedInputSchema).optional(),
+});
+
+export const ExchangeRateUncheckedUpdateWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateWithoutCurrencyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+});
+
+export const ExchangeRateUncheckedUpdateManyWithoutCurrencyInputSchema: z.ZodType<Prisma.ExchangeRateUncheckedUpdateManyWithoutCurrencyInput> = z.strictObject({
+  id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  rate: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  businessId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  branchId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 });
 
 /////////////////////////////////////////
@@ -5224,6 +7915,316 @@ export const FavoritesFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.FavoritesFin
   where: FavoritesWhereUniqueInputSchema, 
 }).strict();
 
+export const BusinessCategoryFindFirstArgsSchema: z.ZodType<Prisma.BusinessCategoryFindFirstArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ BusinessCategoryOrderByWithRelationInputSchema.array(), BusinessCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: BusinessCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ BusinessCategoryScalarFieldEnumSchema, BusinessCategoryScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const BusinessCategoryFindFirstOrThrowArgsSchema: z.ZodType<Prisma.BusinessCategoryFindFirstOrThrowArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ BusinessCategoryOrderByWithRelationInputSchema.array(), BusinessCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: BusinessCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ BusinessCategoryScalarFieldEnumSchema, BusinessCategoryScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const BusinessCategoryFindManyArgsSchema: z.ZodType<Prisma.BusinessCategoryFindManyArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ BusinessCategoryOrderByWithRelationInputSchema.array(), BusinessCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: BusinessCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ BusinessCategoryScalarFieldEnumSchema, BusinessCategoryScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const BusinessCategoryAggregateArgsSchema: z.ZodType<Prisma.BusinessCategoryAggregateArgs> = z.object({
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ BusinessCategoryOrderByWithRelationInputSchema.array(), BusinessCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: BusinessCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const BusinessCategoryGroupByArgsSchema: z.ZodType<Prisma.BusinessCategoryGroupByArgs> = z.object({
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ BusinessCategoryOrderByWithAggregationInputSchema.array(), BusinessCategoryOrderByWithAggregationInputSchema ]).optional(),
+  by: BusinessCategoryScalarFieldEnumSchema.array(), 
+  having: BusinessCategoryScalarWhereWithAggregatesInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const BusinessCategoryFindUniqueArgsSchema: z.ZodType<Prisma.BusinessCategoryFindUniqueArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const BusinessCategoryFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.BusinessCategoryFindUniqueOrThrowArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const ProductCategoryFindFirstArgsSchema: z.ZodType<Prisma.ProductCategoryFindFirstArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ ProductCategoryOrderByWithRelationInputSchema.array(), ProductCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: ProductCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ProductCategoryScalarFieldEnumSchema, ProductCategoryScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const ProductCategoryFindFirstOrThrowArgsSchema: z.ZodType<Prisma.ProductCategoryFindFirstOrThrowArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ ProductCategoryOrderByWithRelationInputSchema.array(), ProductCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: ProductCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ProductCategoryScalarFieldEnumSchema, ProductCategoryScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const ProductCategoryFindManyArgsSchema: z.ZodType<Prisma.ProductCategoryFindManyArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ ProductCategoryOrderByWithRelationInputSchema.array(), ProductCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: ProductCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ProductCategoryScalarFieldEnumSchema, ProductCategoryScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const ProductCategoryAggregateArgsSchema: z.ZodType<Prisma.ProductCategoryAggregateArgs> = z.object({
+  where: ProductCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ ProductCategoryOrderByWithRelationInputSchema.array(), ProductCategoryOrderByWithRelationInputSchema ]).optional(),
+  cursor: ProductCategoryWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const ProductCategoryGroupByArgsSchema: z.ZodType<Prisma.ProductCategoryGroupByArgs> = z.object({
+  where: ProductCategoryWhereInputSchema.optional(), 
+  orderBy: z.union([ ProductCategoryOrderByWithAggregationInputSchema.array(), ProductCategoryOrderByWithAggregationInputSchema ]).optional(),
+  by: ProductCategoryScalarFieldEnumSchema.array(), 
+  having: ProductCategoryScalarWhereWithAggregatesInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const ProductCategoryFindUniqueArgsSchema: z.ZodType<Prisma.ProductCategoryFindUniqueArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const ProductCategoryFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.ProductCategoryFindUniqueOrThrowArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const PriceFindFirstArgsSchema: z.ZodType<Prisma.PriceFindFirstArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereInputSchema.optional(), 
+  orderBy: z.union([ PriceOrderByWithRelationInputSchema.array(), PriceOrderByWithRelationInputSchema ]).optional(),
+  cursor: PriceWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PriceScalarFieldEnumSchema, PriceScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const PriceFindFirstOrThrowArgsSchema: z.ZodType<Prisma.PriceFindFirstOrThrowArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereInputSchema.optional(), 
+  orderBy: z.union([ PriceOrderByWithRelationInputSchema.array(), PriceOrderByWithRelationInputSchema ]).optional(),
+  cursor: PriceWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PriceScalarFieldEnumSchema, PriceScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const PriceFindManyArgsSchema: z.ZodType<Prisma.PriceFindManyArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereInputSchema.optional(), 
+  orderBy: z.union([ PriceOrderByWithRelationInputSchema.array(), PriceOrderByWithRelationInputSchema ]).optional(),
+  cursor: PriceWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PriceScalarFieldEnumSchema, PriceScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const PriceAggregateArgsSchema: z.ZodType<Prisma.PriceAggregateArgs> = z.object({
+  where: PriceWhereInputSchema.optional(), 
+  orderBy: z.union([ PriceOrderByWithRelationInputSchema.array(), PriceOrderByWithRelationInputSchema ]).optional(),
+  cursor: PriceWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const PriceGroupByArgsSchema: z.ZodType<Prisma.PriceGroupByArgs> = z.object({
+  where: PriceWhereInputSchema.optional(), 
+  orderBy: z.union([ PriceOrderByWithAggregationInputSchema.array(), PriceOrderByWithAggregationInputSchema ]).optional(),
+  by: PriceScalarFieldEnumSchema.array(), 
+  having: PriceScalarWhereWithAggregatesInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const PriceFindUniqueArgsSchema: z.ZodType<Prisma.PriceFindUniqueArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereUniqueInputSchema, 
+}).strict();
+
+export const PriceFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.PriceFindUniqueOrThrowArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereUniqueInputSchema, 
+}).strict();
+
+export const CurrencyFindFirstArgsSchema: z.ZodType<Prisma.CurrencyFindFirstArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereInputSchema.optional(), 
+  orderBy: z.union([ CurrencyOrderByWithRelationInputSchema.array(), CurrencyOrderByWithRelationInputSchema ]).optional(),
+  cursor: CurrencyWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CurrencyScalarFieldEnumSchema, CurrencyScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const CurrencyFindFirstOrThrowArgsSchema: z.ZodType<Prisma.CurrencyFindFirstOrThrowArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereInputSchema.optional(), 
+  orderBy: z.union([ CurrencyOrderByWithRelationInputSchema.array(), CurrencyOrderByWithRelationInputSchema ]).optional(),
+  cursor: CurrencyWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CurrencyScalarFieldEnumSchema, CurrencyScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const CurrencyFindManyArgsSchema: z.ZodType<Prisma.CurrencyFindManyArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereInputSchema.optional(), 
+  orderBy: z.union([ CurrencyOrderByWithRelationInputSchema.array(), CurrencyOrderByWithRelationInputSchema ]).optional(),
+  cursor: CurrencyWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CurrencyScalarFieldEnumSchema, CurrencyScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const CurrencyAggregateArgsSchema: z.ZodType<Prisma.CurrencyAggregateArgs> = z.object({
+  where: CurrencyWhereInputSchema.optional(), 
+  orderBy: z.union([ CurrencyOrderByWithRelationInputSchema.array(), CurrencyOrderByWithRelationInputSchema ]).optional(),
+  cursor: CurrencyWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const CurrencyGroupByArgsSchema: z.ZodType<Prisma.CurrencyGroupByArgs> = z.object({
+  where: CurrencyWhereInputSchema.optional(), 
+  orderBy: z.union([ CurrencyOrderByWithAggregationInputSchema.array(), CurrencyOrderByWithAggregationInputSchema ]).optional(),
+  by: CurrencyScalarFieldEnumSchema.array(), 
+  having: CurrencyScalarWhereWithAggregatesInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const CurrencyFindUniqueArgsSchema: z.ZodType<Prisma.CurrencyFindUniqueArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereUniqueInputSchema, 
+}).strict();
+
+export const CurrencyFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.CurrencyFindUniqueOrThrowArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereUniqueInputSchema, 
+}).strict();
+
+export const ExchangeRateFindFirstArgsSchema: z.ZodType<Prisma.ExchangeRateFindFirstArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereInputSchema.optional(), 
+  orderBy: z.union([ ExchangeRateOrderByWithRelationInputSchema.array(), ExchangeRateOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExchangeRateWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ExchangeRateScalarFieldEnumSchema, ExchangeRateScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const ExchangeRateFindFirstOrThrowArgsSchema: z.ZodType<Prisma.ExchangeRateFindFirstOrThrowArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereInputSchema.optional(), 
+  orderBy: z.union([ ExchangeRateOrderByWithRelationInputSchema.array(), ExchangeRateOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExchangeRateWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ExchangeRateScalarFieldEnumSchema, ExchangeRateScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const ExchangeRateFindManyArgsSchema: z.ZodType<Prisma.ExchangeRateFindManyArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereInputSchema.optional(), 
+  orderBy: z.union([ ExchangeRateOrderByWithRelationInputSchema.array(), ExchangeRateOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExchangeRateWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ExchangeRateScalarFieldEnumSchema, ExchangeRateScalarFieldEnumSchema.array() ]).optional(),
+}).strict();
+
+export const ExchangeRateAggregateArgsSchema: z.ZodType<Prisma.ExchangeRateAggregateArgs> = z.object({
+  where: ExchangeRateWhereInputSchema.optional(), 
+  orderBy: z.union([ ExchangeRateOrderByWithRelationInputSchema.array(), ExchangeRateOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExchangeRateWhereUniqueInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const ExchangeRateGroupByArgsSchema: z.ZodType<Prisma.ExchangeRateGroupByArgs> = z.object({
+  where: ExchangeRateWhereInputSchema.optional(), 
+  orderBy: z.union([ ExchangeRateOrderByWithAggregationInputSchema.array(), ExchangeRateOrderByWithAggregationInputSchema ]).optional(),
+  by: ExchangeRateScalarFieldEnumSchema.array(), 
+  having: ExchangeRateScalarWhereWithAggregatesInputSchema.optional(), 
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict();
+
+export const ExchangeRateFindUniqueArgsSchema: z.ZodType<Prisma.ExchangeRateFindUniqueArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereUniqueInputSchema, 
+}).strict();
+
+export const ExchangeRateFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.ExchangeRateFindUniqueOrThrowArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereUniqueInputSchema, 
+}).strict();
+
 export const BusinessCreateArgsSchema: z.ZodType<Prisma.BusinessCreateArgs> = z.object({
   select: BusinessSelectSchema.optional(),
   include: BusinessIncludeSchema.optional(),
@@ -5599,5 +8600,275 @@ export const FavoritesUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.FavoritesU
 
 export const FavoritesDeleteManyArgsSchema: z.ZodType<Prisma.FavoritesDeleteManyArgs> = z.object({
   where: FavoritesWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const BusinessCategoryCreateArgsSchema: z.ZodType<Prisma.BusinessCategoryCreateArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  data: z.union([ BusinessCategoryCreateInputSchema, BusinessCategoryUncheckedCreateInputSchema ]),
+}).strict();
+
+export const BusinessCategoryUpsertArgsSchema: z.ZodType<Prisma.BusinessCategoryUpsertArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereUniqueInputSchema, 
+  create: z.union([ BusinessCategoryCreateInputSchema, BusinessCategoryUncheckedCreateInputSchema ]),
+  update: z.union([ BusinessCategoryUpdateInputSchema, BusinessCategoryUncheckedUpdateInputSchema ]),
+}).strict();
+
+export const BusinessCategoryCreateManyArgsSchema: z.ZodType<Prisma.BusinessCategoryCreateManyArgs> = z.object({
+  data: z.union([ BusinessCategoryCreateManyInputSchema, BusinessCategoryCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const BusinessCategoryCreateManyAndReturnArgsSchema: z.ZodType<Prisma.BusinessCategoryCreateManyAndReturnArgs> = z.object({
+  data: z.union([ BusinessCategoryCreateManyInputSchema, BusinessCategoryCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const BusinessCategoryDeleteArgsSchema: z.ZodType<Prisma.BusinessCategoryDeleteArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  where: BusinessCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const BusinessCategoryUpdateArgsSchema: z.ZodType<Prisma.BusinessCategoryUpdateArgs> = z.object({
+  select: BusinessCategorySelectSchema.optional(),
+  include: BusinessCategoryIncludeSchema.optional(),
+  data: z.union([ BusinessCategoryUpdateInputSchema, BusinessCategoryUncheckedUpdateInputSchema ]),
+  where: BusinessCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const BusinessCategoryUpdateManyArgsSchema: z.ZodType<Prisma.BusinessCategoryUpdateManyArgs> = z.object({
+  data: z.union([ BusinessCategoryUpdateManyMutationInputSchema, BusinessCategoryUncheckedUpdateManyInputSchema ]),
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const BusinessCategoryUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.BusinessCategoryUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ BusinessCategoryUpdateManyMutationInputSchema, BusinessCategoryUncheckedUpdateManyInputSchema ]),
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const BusinessCategoryDeleteManyArgsSchema: z.ZodType<Prisma.BusinessCategoryDeleteManyArgs> = z.object({
+  where: BusinessCategoryWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const ProductCategoryCreateArgsSchema: z.ZodType<Prisma.ProductCategoryCreateArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  data: z.union([ ProductCategoryCreateInputSchema, ProductCategoryUncheckedCreateInputSchema ]),
+}).strict();
+
+export const ProductCategoryUpsertArgsSchema: z.ZodType<Prisma.ProductCategoryUpsertArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereUniqueInputSchema, 
+  create: z.union([ ProductCategoryCreateInputSchema, ProductCategoryUncheckedCreateInputSchema ]),
+  update: z.union([ ProductCategoryUpdateInputSchema, ProductCategoryUncheckedUpdateInputSchema ]),
+}).strict();
+
+export const ProductCategoryCreateManyArgsSchema: z.ZodType<Prisma.ProductCategoryCreateManyArgs> = z.object({
+  data: z.union([ ProductCategoryCreateManyInputSchema, ProductCategoryCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const ProductCategoryCreateManyAndReturnArgsSchema: z.ZodType<Prisma.ProductCategoryCreateManyAndReturnArgs> = z.object({
+  data: z.union([ ProductCategoryCreateManyInputSchema, ProductCategoryCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const ProductCategoryDeleteArgsSchema: z.ZodType<Prisma.ProductCategoryDeleteArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  where: ProductCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const ProductCategoryUpdateArgsSchema: z.ZodType<Prisma.ProductCategoryUpdateArgs> = z.object({
+  select: ProductCategorySelectSchema.optional(),
+  include: ProductCategoryIncludeSchema.optional(),
+  data: z.union([ ProductCategoryUpdateInputSchema, ProductCategoryUncheckedUpdateInputSchema ]),
+  where: ProductCategoryWhereUniqueInputSchema, 
+}).strict();
+
+export const ProductCategoryUpdateManyArgsSchema: z.ZodType<Prisma.ProductCategoryUpdateManyArgs> = z.object({
+  data: z.union([ ProductCategoryUpdateManyMutationInputSchema, ProductCategoryUncheckedUpdateManyInputSchema ]),
+  where: ProductCategoryWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const ProductCategoryUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.ProductCategoryUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ ProductCategoryUpdateManyMutationInputSchema, ProductCategoryUncheckedUpdateManyInputSchema ]),
+  where: ProductCategoryWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const ProductCategoryDeleteManyArgsSchema: z.ZodType<Prisma.ProductCategoryDeleteManyArgs> = z.object({
+  where: ProductCategoryWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const PriceCreateArgsSchema: z.ZodType<Prisma.PriceCreateArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  data: z.union([ PriceCreateInputSchema, PriceUncheckedCreateInputSchema ]),
+}).strict();
+
+export const PriceUpsertArgsSchema: z.ZodType<Prisma.PriceUpsertArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereUniqueInputSchema, 
+  create: z.union([ PriceCreateInputSchema, PriceUncheckedCreateInputSchema ]),
+  update: z.union([ PriceUpdateInputSchema, PriceUncheckedUpdateInputSchema ]),
+}).strict();
+
+export const PriceCreateManyArgsSchema: z.ZodType<Prisma.PriceCreateManyArgs> = z.object({
+  data: z.union([ PriceCreateManyInputSchema, PriceCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const PriceCreateManyAndReturnArgsSchema: z.ZodType<Prisma.PriceCreateManyAndReturnArgs> = z.object({
+  data: z.union([ PriceCreateManyInputSchema, PriceCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const PriceDeleteArgsSchema: z.ZodType<Prisma.PriceDeleteArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  where: PriceWhereUniqueInputSchema, 
+}).strict();
+
+export const PriceUpdateArgsSchema: z.ZodType<Prisma.PriceUpdateArgs> = z.object({
+  select: PriceSelectSchema.optional(),
+  include: PriceIncludeSchema.optional(),
+  data: z.union([ PriceUpdateInputSchema, PriceUncheckedUpdateInputSchema ]),
+  where: PriceWhereUniqueInputSchema, 
+}).strict();
+
+export const PriceUpdateManyArgsSchema: z.ZodType<Prisma.PriceUpdateManyArgs> = z.object({
+  data: z.union([ PriceUpdateManyMutationInputSchema, PriceUncheckedUpdateManyInputSchema ]),
+  where: PriceWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const PriceUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.PriceUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ PriceUpdateManyMutationInputSchema, PriceUncheckedUpdateManyInputSchema ]),
+  where: PriceWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const PriceDeleteManyArgsSchema: z.ZodType<Prisma.PriceDeleteManyArgs> = z.object({
+  where: PriceWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const CurrencyCreateArgsSchema: z.ZodType<Prisma.CurrencyCreateArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  data: z.union([ CurrencyCreateInputSchema, CurrencyUncheckedCreateInputSchema ]),
+}).strict();
+
+export const CurrencyUpsertArgsSchema: z.ZodType<Prisma.CurrencyUpsertArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereUniqueInputSchema, 
+  create: z.union([ CurrencyCreateInputSchema, CurrencyUncheckedCreateInputSchema ]),
+  update: z.union([ CurrencyUpdateInputSchema, CurrencyUncheckedUpdateInputSchema ]),
+}).strict();
+
+export const CurrencyCreateManyArgsSchema: z.ZodType<Prisma.CurrencyCreateManyArgs> = z.object({
+  data: z.union([ CurrencyCreateManyInputSchema, CurrencyCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const CurrencyCreateManyAndReturnArgsSchema: z.ZodType<Prisma.CurrencyCreateManyAndReturnArgs> = z.object({
+  data: z.union([ CurrencyCreateManyInputSchema, CurrencyCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const CurrencyDeleteArgsSchema: z.ZodType<Prisma.CurrencyDeleteArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  where: CurrencyWhereUniqueInputSchema, 
+}).strict();
+
+export const CurrencyUpdateArgsSchema: z.ZodType<Prisma.CurrencyUpdateArgs> = z.object({
+  select: CurrencySelectSchema.optional(),
+  include: CurrencyIncludeSchema.optional(),
+  data: z.union([ CurrencyUpdateInputSchema, CurrencyUncheckedUpdateInputSchema ]),
+  where: CurrencyWhereUniqueInputSchema, 
+}).strict();
+
+export const CurrencyUpdateManyArgsSchema: z.ZodType<Prisma.CurrencyUpdateManyArgs> = z.object({
+  data: z.union([ CurrencyUpdateManyMutationInputSchema, CurrencyUncheckedUpdateManyInputSchema ]),
+  where: CurrencyWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const CurrencyUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.CurrencyUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ CurrencyUpdateManyMutationInputSchema, CurrencyUncheckedUpdateManyInputSchema ]),
+  where: CurrencyWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const CurrencyDeleteManyArgsSchema: z.ZodType<Prisma.CurrencyDeleteManyArgs> = z.object({
+  where: CurrencyWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const ExchangeRateCreateArgsSchema: z.ZodType<Prisma.ExchangeRateCreateArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  data: z.union([ ExchangeRateCreateInputSchema, ExchangeRateUncheckedCreateInputSchema ]),
+}).strict();
+
+export const ExchangeRateUpsertArgsSchema: z.ZodType<Prisma.ExchangeRateUpsertArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereUniqueInputSchema, 
+  create: z.union([ ExchangeRateCreateInputSchema, ExchangeRateUncheckedCreateInputSchema ]),
+  update: z.union([ ExchangeRateUpdateInputSchema, ExchangeRateUncheckedUpdateInputSchema ]),
+}).strict();
+
+export const ExchangeRateCreateManyArgsSchema: z.ZodType<Prisma.ExchangeRateCreateManyArgs> = z.object({
+  data: z.union([ ExchangeRateCreateManyInputSchema, ExchangeRateCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const ExchangeRateCreateManyAndReturnArgsSchema: z.ZodType<Prisma.ExchangeRateCreateManyAndReturnArgs> = z.object({
+  data: z.union([ ExchangeRateCreateManyInputSchema, ExchangeRateCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict();
+
+export const ExchangeRateDeleteArgsSchema: z.ZodType<Prisma.ExchangeRateDeleteArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  where: ExchangeRateWhereUniqueInputSchema, 
+}).strict();
+
+export const ExchangeRateUpdateArgsSchema: z.ZodType<Prisma.ExchangeRateUpdateArgs> = z.object({
+  select: ExchangeRateSelectSchema.optional(),
+  include: ExchangeRateIncludeSchema.optional(),
+  data: z.union([ ExchangeRateUpdateInputSchema, ExchangeRateUncheckedUpdateInputSchema ]),
+  where: ExchangeRateWhereUniqueInputSchema, 
+}).strict();
+
+export const ExchangeRateUpdateManyArgsSchema: z.ZodType<Prisma.ExchangeRateUpdateManyArgs> = z.object({
+  data: z.union([ ExchangeRateUpdateManyMutationInputSchema, ExchangeRateUncheckedUpdateManyInputSchema ]),
+  where: ExchangeRateWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const ExchangeRateUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.ExchangeRateUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ ExchangeRateUpdateManyMutationInputSchema, ExchangeRateUncheckedUpdateManyInputSchema ]),
+  where: ExchangeRateWhereInputSchema.optional(), 
+  limit: z.number().optional(),
+}).strict();
+
+export const ExchangeRateDeleteManyArgsSchema: z.ZodType<Prisma.ExchangeRateDeleteManyArgs> = z.object({
+  where: ExchangeRateWhereInputSchema.optional(), 
   limit: z.number().optional(),
 }).strict();

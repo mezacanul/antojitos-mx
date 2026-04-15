@@ -1,6 +1,16 @@
 // apps/next_api/src/services/branch.service.ts
 import { prisma } from "@antojitos-mx/db";
 
+export async function getBranchesByBusinessId(
+  businessId: string
+) {
+  return await prisma.branch.findMany({
+    where: {
+      businessId: businessId,
+    },
+  });
+}
+
 export async function createBranch(
   userId: string,
   name: string,

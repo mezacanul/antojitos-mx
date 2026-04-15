@@ -6,8 +6,8 @@
 
 @layer base {
   html {
-      /* font-family: var(--font-name); */
-      scroll-behavior: smooth;
+    /* font-family: var(--font-name); */
+    scroll-behavior: smooth;
   }
 }
 
@@ -27,5 +27,40 @@
 @layer utilities {
   .text-1 {
     /* @apply text-[80px]/[110%] font-extrabold; */
+  }
+
+  .input-text {
+    @apply text-sm;
+    @apply border border-gray-300 rounded-md p-2;
+    @apply bg-white;
+  }
+
+  .btn-login-submit {
+    @apply text-sm text-white;
+    @apply bg-blue-500 rounded-md p-2;
+    @apply px-4 py-2;
+    @apply transition-all duration-300;
+    @apply hover:bg-blue-600;
+    @apply cursor-pointer;
+  }
+
+  .branch-card {
+    @apply flex flex-col gap-2 items-start;
+    @apply border border-gray-300 rounded-md p-3;
+    @apply bg-white;
+    @apply cursor-pointer;
+    @apply transition-all duration-300;
+    @apply shadow-md;
+    @apply hover:bg-gray-100;
+  }
+  
+  .product-card {
+    @apply flex flex-col gap-2 items-start;
+    @apply border border-gray-300 rounded-md p-3;
+    @apply bg-white;
+    @apply cursor-pointer;
+    @apply transition-all duration-300;
+    @apply shadow-md;
+    @apply hover:bg-gray-100;
   }
 }
