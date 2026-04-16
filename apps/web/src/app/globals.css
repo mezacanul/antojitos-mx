@@ -35,15 +35,6 @@
     @apply bg-white;
   }
 
-  .btn-login-submit {
-    @apply text-sm text-white;
-    @apply bg-blue-500 rounded-md p-2;
-    @apply px-4 py-2;
-    @apply transition-all duration-300;
-    @apply hover:bg-blue-600;
-    @apply cursor-pointer;
-  }
-
   .branch-card {
     @apply flex flex-col gap-2 items-start;
     @apply border border-gray-300 rounded-md p-3;
@@ -53,7 +44,7 @@
     @apply shadow-md;
     @apply hover:bg-gray-100;
   }
-  
+
   .product-card {
     @apply flex flex-col gap-2 items-start;
     @apply border border-gray-300 rounded-md p-3;
@@ -62,5 +53,58 @@
     @apply transition-all duration-300;
     @apply shadow-md;
     @apply hover:bg-gray-100;
+  }
+
+  .pd-panel {
+    @apply px-[4rem] py-10;
+  }
+
+  .pd-sidebar {
+    @apply py-10 px-8;
+  }
+
+  a {
+    @apply hover:underline;
+  }
+}
+
+/* Buttons */
+@layer components {
+  .btn-login-submit {
+    @apply text-sm text-white;
+    @apply bg-blue-500 rounded-md p-2;
+    @apply px-4 py-2;
+    @apply transition-all duration-300;
+    @apply hover:bg-blue-600;
+    @apply cursor-pointer;
+  }
+
+  .btn-logout {
+    @apply text-sm bg-white text-black;
+    @apply rounded-md p-2;
+    @apply px-4 py-2;
+    @apply transition-all duration-300;
+    @apply hover:bg-gray-200;
+    @apply cursor-pointer;
+  }
+
+  .btn-registro {
+    @apply text-sm text-white;
+    @apply bg-blue-600 rounded-md p-2;
+    @apply px-4 py-2;
+    @apply transition-all duration-300;
+    @apply hover:bg-orange-600/80;
+    @apply hover:scale-105;
+    @apply cursor-pointer;
+  }
+  
+  .btn-registro-siguiente {
+    @apply text-sm text-white;
+    @apply bg-blue-600 rounded-md p-2;
+    @apply px-4 py-2;
+    @apply transition-all duration-300;
+    @apply hover:bg-blue-700;
+    /* @apply hover:scale-105; */
+    @apply cursor-pointer;
   }
 }

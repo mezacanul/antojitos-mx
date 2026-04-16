@@ -1,4 +1,5 @@
 import { Branch } from "@/types";
+import { cn } from "@/utils/cn";
 import Link from "next/link";
 
 export default function BranchList({
@@ -10,7 +11,12 @@ export default function BranchList({
     <div className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">Sucursales</h2>
 
-      <div className="grid grid-cols-4 gap-2">
+      <div
+        className={cn(
+          "grid gap-2",
+          "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        )}
+      >
         {branches.map((branch) => (
           <Link
             href={`/empresas/panel/productos`}

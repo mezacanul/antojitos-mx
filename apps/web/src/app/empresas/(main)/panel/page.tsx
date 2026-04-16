@@ -48,7 +48,7 @@ export default async function Home() {
   );
 
   return (
-    <div className="flex h-[80vh] px-[5rem] py-[2rem] flex-col gap-4">
+    <div className="flex h-full flex-col gap-4">
       <h1 className="text-4xl font-bold">{business.name}</h1>
       <BranchList branches={branches} />
     </div>

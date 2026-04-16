@@ -67,7 +67,7 @@ export async function proxy(request: NextRequest) {
     }
 
     // Validar si el usuario es un administrador
-    console.log("Proxy successful");
+    console.log("Proxy validation successful");
     // console.log("Data:", data);
     return NextResponse.next();
   }

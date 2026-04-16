@@ -18,9 +18,20 @@ generator zod {
 
 model Business {
   // Custom 
-  name String
-  slug String  @unique
-  rfc  String? @unique
+  name      String
+  phone     String?
+  email     String? @unique
+  website   String? @unique
+  address   String?
+  city      String
+  state     String
+  country   String  @default("MX")
+  zip       String?
+  latitude  Float?
+  longitude Float?
+  timezone  String?
+  rfc       String? @unique
+  imageUrl  String?
 
   // System 
   id        String   @id @default(cuid())
@@ -42,6 +53,8 @@ model Tenant {
   names            String
   maternal_surname String
   paternal_surname String
+  email            String  @unique
+  phone            String?
   rfc              String? @unique
 
   // System 
@@ -58,8 +71,14 @@ model Tenant {
 
 model Branch {
   // Custom 
-  name    String
-  address String?
+  name      String
+  latitude  Float
+  longitude Float
+  city      String
+  state     String
+  address   String?
+  zip       String?
+  imageUrl  String?
   // internal_code String  @unique
 
   // System 
@@ -93,15 +112,16 @@ enum FavoriteType {
 model User {
   // System 
   id        String   @id
-  role      Role     @default(GUEST)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Custom 
-  email            String @unique
   names            String
   maternal_surname String
   paternal_surname String
+  phone            String?
+  role             Role    @default(GUEST)
+  email            String  @unique
 
   // Relations
   tenantId String?

@@ -31,36 +31,13 @@ export default function LoginLayout({
       <body className="min-h-full flex flex-col">
         <div
           className={cn(
-            "flex flex-col items-center justify-center h-dvh bg-slate-200",
+            "flex flex-col items-center justify-center h-dvh bg-slate-100",
             "gap-10"
           )}
         >
-          <Logo />
           {children}
-          <Options />
         </div>
       </body>
     </html>
-  );
-}
-
-function Logo() {
-  return (
-    <div>
-      <p>Logo</p>
-    </div>
-  );
-}
-
-function Options() {
-  return (
-    <div>
-      <a
-        href="/empresas/registro"
-        className="text-blue-500"
-      >
-        Registro
-      </a>
-    </div>
   );
 }

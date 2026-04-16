@@ -1,8 +1,57 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `slug` on the `Business` table. All the data in the column will be lost.
+  - A unique constraint covering the columns `[email]` on the table `Business` will be added. If there are existing duplicate values, this will fail.
+  - A unique constraint covering the columns `[website]` on the table `Business` will be added. If there are existing duplicate values, this will fail.
+  - A unique constraint covering the columns `[email]` on the table `Tenant` will be added. If there are existing duplicate values, this will fail.
+  - Added the required column `city` to the `Branch` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `latitude` to the `Branch` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `longitude` to the `Branch` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `state` to the `Branch` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `city` to the `Business` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `state` to the `Business` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `email` to the `Tenant` table without a default value. This is not possible if the table is not empty.
+
+*/
 -- CreateEnum
 CREATE TYPE "PriceType" AS ENUM ('pza', 'gr', 'kg', 'ml', 'lt', 'lb', 'floz', 'oz');
 
+-- DropIndex
+DROP INDEX "Business_slug_key";
+
+-- AlterTable
+ALTER TABLE "Branch" ADD COLUMN     "city" TEXT NOT NULL,
+ADD COLUMN     "imageUrl" TEXT,
+ADD COLUMN     "latitude" DOUBLE PRECISION NOT NULL,
+ADD COLUMN     "longitude" DOUBLE PRECISION NOT NULL,
+ADD COLUMN     "state" TEXT NOT NULL,
+ADD COLUMN     "zip" TEXT;
+
+-- AlterTable
+ALTER TABLE "Business" DROP COLUMN "slug",
+ADD COLUMN     "address" TEXT,
+ADD COLUMN     "city" TEXT NOT NULL,
+ADD COLUMN     "country" TEXT NOT NULL DEFAULT 'MX',
+ADD COLUMN     "email" TEXT,
+ADD COLUMN     "imageUrl" TEXT,
+ADD COLUMN     "latitude" DOUBLE PRECISION,
+ADD COLUMN     "longitude" DOUBLE PRECISION,
+ADD COLUMN     "phone" TEXT,
+ADD COLUMN     "state" TEXT NOT NULL,
+ADD COLUMN     "timezone" TEXT,
+ADD COLUMN     "website" TEXT,
+ADD COLUMN     "zip" TEXT;
+
 -- AlterTable
 ALTER TABLE "Product" ADD COLUMN     "productCategoryId" TEXT;
+
+-- AlterTable
+ALTER TABLE "Tenant" ADD COLUMN     "email" TEXT NOT NULL,
+ADD COLUMN     "phone" TEXT;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "phone" TEXT;
 
 -- CreateTable
 CREATE TABLE "BusinessCategory" (
@@ -77,6 +126,15 @@ CREATE UNIQUE INDEX "ExchangeRate_currencyId_businessId_branchId_key" ON "Exchan
 
 -- CreateIndex
 CREATE INDEX "_BusinessToBusinessCategory_B_index" ON "_BusinessToBusinessCategory"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Business_email_key" ON "Business"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Business_website_key" ON "Business"("website");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Tenant_email_key" ON "Tenant"("email");
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_productCategoryId_fkey" FOREIGN KEY ("productCategoryId") REFERENCES "ProductCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
