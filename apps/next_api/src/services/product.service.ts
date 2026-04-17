@@ -51,7 +51,6 @@ export const productService = {
         data: {
           name,
           description,
-          price: parseFloat(price),
           businessId,
           branchId,
           imageUrl: storageData.path, // Store the path to retrieve it later
@@ -61,7 +60,7 @@ export const productService = {
       return newProduct;
     } catch (dbError) {
       console.log(dbError);
-      
+
       // 4. Rollback: If DB fails, remove the uploaded picture
       await supabase.storage
         .from(bucketName)

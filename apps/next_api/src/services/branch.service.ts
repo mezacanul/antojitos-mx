@@ -14,7 +14,10 @@ export async function getBranchesByBusinessId(
 export async function createBranch(
   userId: string,
   name: string,
-  address?: string
+  city: string,
+  state: string,
+  latitude: number,
+  longitude: number
 ) {
   // 1. Fetch user with their role and the nested businessId from the Tenant
   const user = await prisma.user.findUnique({
@@ -49,7 +52,10 @@ export async function createBranch(
   return await prisma.branch.create({
     data: {
       name,
-      address,
+      city,
+      state,
+      latitude,
+      longitude,
       businessId: businessId, // The branch is linked to the top-level Business
     },
   });

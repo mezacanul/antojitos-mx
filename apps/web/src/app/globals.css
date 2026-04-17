@@ -32,7 +32,7 @@
   .input-text {
     @apply text-sm;
     @apply border border-gray-300 rounded-md p-2;
-    @apply bg-white;
+    @apply bg-white shadow-sm;
   }
 
   .branch-card {
@@ -53,6 +53,16 @@
     @apply transition-all duration-300;
     @apply shadow-md;
     @apply hover:bg-gray-100;
+  }
+
+  .category-card {
+    @apply flex flex-col gap-2 items-start;
+    @apply border border-gray-300 rounded-md p-3;
+    @apply bg-white;
+    @apply cursor-pointer;
+    @apply transition-all duration-300;
+    @apply shadow-md;
+    @apply hover:bg-orange-600/80 hover:text-white;
   }
 
   .pd-panel {
@@ -90,14 +100,14 @@
 
   .btn-registro {
     @apply text-sm text-white;
-    @apply bg-blue-600 rounded-md p-2;
+    @apply bg-orange-600/80 rounded-md p-2;
     @apply px-4 py-2;
-    @apply transition-all duration-300;
-    @apply hover:bg-orange-600/80;
+    @apply transition-all duration-400;
+    @apply hover:bg-blue-600;
     @apply hover:scale-105;
     @apply cursor-pointer;
   }
-  
+
   .btn-registro-siguiente {
     @apply text-sm text-white;
     @apply bg-blue-600 rounded-md p-2;
@@ -106,5 +116,31 @@
     @apply hover:bg-blue-700;
     /* @apply hover:scale-105; */
     @apply cursor-pointer;
+  }
+
+  .btn-base {
+    @apply text-sm text-white;
+    @apply bg-blue-600 rounded-md p-2;
+    @apply px-4 py-2;
+    @apply transition-all duration-300;
+    @apply hover:bg-blue-700;
+    @apply cursor-pointer;
+  }
+}
+
+/* Badges */
+@layer components {
+  .badge {
+    @apply text-sm font-bold;
+    @apply rounded-full;
+    @apply px-3 py-[0.1rem];
+
+    @apply transition-all duration-300;
+    /* @apply cursor-pointer; */
+  }
+  .badge-success {
+    @apply text-green-700;
+    @apply bg-green-200;
+    @apply border-2 border-green-600/60;
   }
 }

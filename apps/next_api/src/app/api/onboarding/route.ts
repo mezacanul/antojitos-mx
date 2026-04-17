@@ -1,14 +1,30 @@
 import { NextResponse } from "next/server";
-import { registerOnboarding } from "../../../services/onboarding.service";
-import { OnboardingDTO } from "@antojitos-mx/shared";
+import { OnboardingService } from "@/services/onboarding.service";
 import { handleZodError } from "@/lib/response";
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    const jsonData = await request.json();
+    const {
+      businessFormData,
+      userFormData,
+      branchFormData,
+    } = jsonData;
+    const payload = {
+      business: businessFormData,
+      user: userFormData,
+      branch: {
+        ...branchFormData,
+        city: businessFormData.city,
+        state: businessFormData.state,
+        latitude: Number(branchFormData.latitude),
+        longitude: Number(branchFormData.longitude),
+      },
+    };
 
-    const validatedData = OnboardingDTO.parse(json);
-    const result = await registerOnboarding(validatedData);
+    const result = await OnboardingService.createBusiness(
+      payload
+    );
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {

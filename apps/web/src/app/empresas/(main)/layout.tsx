@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import Layout from "@/components/Empresas/Layout";
+import { getBusinessByUserId } from "@/lib/data/business";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,18 +20,19 @@ export const metadata: Metadata = {
     "A template for a Next.js project with Tailwind CSS, TypeScript and the App Router",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const business = await getBusinessByUserId();
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-gray-100">
-        <Layout>{children}</Layout>
+        <Layout business={business}>{children}</Layout>
         {/* <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

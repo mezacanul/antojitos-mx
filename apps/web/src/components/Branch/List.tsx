@@ -9,8 +9,6 @@ export default function BranchList({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">Sucursales</h2>
-
       <div
         className={cn(
           "grid gap-2",

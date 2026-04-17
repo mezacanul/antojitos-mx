@@ -23,11 +23,11 @@ type Product = {
   updated_at: string;
 };
 
-type BusinessForm = {
-  name: string;
-  description: string;
-  image: string;
-};
+// type BusinessForm = {
+//   name: string;
+//   description: string;
+//   image: string;
+// };
 
 type TenantUserForm = {
   names: string;
@@ -48,7 +48,6 @@ export type {
   Business,
   Branch,
   Product,
-  BusinessForm,
   TenantUserForm,
   BranchForm,
 };

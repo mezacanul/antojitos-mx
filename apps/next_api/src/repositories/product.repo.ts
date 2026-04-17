@@ -9,3 +9,21 @@ export const getProductsByBusinessId = async (
     },
   });
 };
+
+export const getProductCategoriesByBusinessId = async (
+  businessId: string
+) => {
+  return await prisma.productCategory.findMany({
+    where: {
+      businessId: businessId,
+    },
+  });
+};
+
+export const createProductCategory = async (
+  categoryData: any
+) => {
+  return await prisma.productCategory.create({
+    data: categoryData,
+  });
+};

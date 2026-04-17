@@ -50,12 +50,14 @@ model Business {
 
 model Tenant {
   // Custom 
+  // * Required for onboarding
   names            String
   maternal_surname String
   paternal_surname String
   email            String  @unique
   phone            String?
-  rfc              String? @unique
+
+  rfc String? @unique
 
   // System 
   id        String   @id @default(cuid())
@@ -119,9 +121,9 @@ model User {
   names            String
   maternal_surname String
   paternal_surname String
+  email            String  @unique
   phone            String?
   role             Role    @default(GUEST)
-  email            String  @unique
 
   // Relations
   tenantId String?
@@ -142,8 +144,8 @@ model Product {
 
   // Custom 
   name        String
-  description String?
-  price       Decimal @db.Decimal(10, 2)
+  description String
+  baseUnit    BaseUnit @default(pza)
   imageUrl    String?
 
   // Relations
@@ -155,9 +157,10 @@ model Product {
   branch            Branch?          @relation(fields: [branchId], references: [id])
 
   // Logical deletion for audit trails
-  isDeleted Boolean     @default(false)
-  favorites Favorites[]
-  prices    Price[]
+  isDeleted       Boolean          @default(false)
+  favorites       Favorites[]
+  prices          Price[]
+  productVariants ProductVariant[]
 }
 
 model Reviews {
@@ -197,7 +200,7 @@ model Favorites {
   user   User   @relation(fields: [userId], references: [id])
 }
 
-enum PriceType {
+enum BaseUnit {
   pza
   gr
   kg
@@ -232,13 +235,19 @@ model ProductCategory {
 
 // 4. Prices (Linked to Product)
 model Price {
-  id       String    @id @default(uuid())
-  type     PriceType @default(pza)
-  amount   Decimal   @db.Decimal(10, 2)
-  quantity Float     @default(1) // e.g., 500 for "500 gr"
+  id     String  @id @default(uuid())
+  amount Decimal @db.Decimal(10, 2)
+  price  Float   @default(1) // e.g., 500 for "500 gr"
 
   productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  name      String
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
 }
 
 // 5. Currencies (Global Reference)

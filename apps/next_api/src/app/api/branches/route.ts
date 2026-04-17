@@ -51,7 +51,10 @@ export async function POST(req: Request) {
     const branch = await createBranch(
       user.id,
       body.name,
-      body.address
+      body.city,
+      body.state,
+      body.latitude,
+      body.longitude
     );
 
     return NextResponse.json(branch, { status: 201 });

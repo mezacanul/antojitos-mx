@@ -1,24 +1,30 @@
-import { BusinessForm } from "@/types";
+import { BranchFormType } from "@/lib/schema/forms";
 import { create } from "zustand";
 
-type BusinessFormStore = {
-  formData: BusinessForm;
-  setFormData: (data: Partial<BusinessForm>) => void;
-  resetFormData: (data: BusinessForm) => void;
+type BranchFormStore = {
+  branchFormData: BranchFormType;
+  setBranchFormData: (data: BranchFormType) => void;
+  resetBranchFormData: (data: BranchFormType) => void;
 };
 
-const defaultFormData: BusinessForm = {
+export const defaultBranchFormData: BranchFormType = {
   name: "",
-  description: "",
-  image: "",
+  address: "",
+  latitude: "0.0",
+  longitude: "0.0",
 };
 
-export const useBusinessFormStore =
-  create<BusinessFormStore>((set) => ({
-    formData: defaultFormData,
-    setFormData: (data) =>
+export const useBranchFormStore = create<BranchFormStore>(
+  (set) => ({
+    branchFormData: defaultBranchFormData,
+    setBranchFormData: (data) =>
       set((state) => ({
-        formData: { ...state.formData, ...data },
+        branchFormData: {
+          ...state.branchFormData,
+          ...data,
+        },
       })),
-    resetFormData: (data) => set({ formData: data }),
-  }));
+    resetBranchFormData: (data) =>
+      set({ branchFormData: data }),
+  })
+);
