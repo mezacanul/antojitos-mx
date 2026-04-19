@@ -1,7 +1,6 @@
-import FormularioCategoria from "@/components/Empresas/Productos/FormularioCategoria";
 import { getBusinessByUserId } from "@/lib/data/business";
-import CategoryList from "@/components/Empresas/Productos/CategoryList";
-import { getProductCategoriesByBusinessId } from "@/lib/data/products";
+import ContenidoCategoria from "@/components/Producto/ContenidoCategoria";
+import ListaCategorias from "@/components/Producto/ListaCategorias";
 
 export default async function Home({
   searchParams,
@@ -12,20 +11,18 @@ export default async function Home({
 }) {
   const pcid = (await searchParams).pcid as string;
   console.log("pcid:", pcid);
-  const business = await getBusinessByUserId();
-  // console.log("Business:", business);
-  const categories = await getProductCategoriesByBusinessId(
-    business.id
-  );
 
+  // If Product Category ID is provided,
+  // show the product list
   if (pcid) {
-    return <p>Categoria seleccionada: {pcid}</p>;
+    return <ContenidoCategoria pcid={pcid} />;
   }
 
-  return (
-    <div className="flex h-full flex-col gap-8 w-full">
-      <FormularioCategoria businessId={business.id} />
-      <CategoryList categories={categories} />
-    </div>
-  );
+  const business = await getBusinessByUserId();
+  // console.log("Business:", business);
+  const businessId = business.id;
+
+  // If no Product Category ID is provided,
+  // show the category list
+  return <ListaCategorias businessId={businessId} />;
 }

@@ -49,3 +49,49 @@ export const branchFormSchema = z.object({
 export type BranchFormType = z.infer<
   typeof branchFormSchema
 >;
+
+export const productFormSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  description: z
+    .string()
+    .min(1, "La descripción es requerida"),
+  baseUnit: z
+    .string()
+    .min(1, "La unidad de medida es requerida"),
+});
+
+export type ProductFormType = z.infer<
+  typeof productFormSchema
+>;
+
+export const imageFileSchema = z.object({
+  image: z
+    .instanceof(FileList)
+    .refine((files) => files.length === 1, {
+      message: "Please select exactly one image",
+    })
+    .refine(
+      (files) =>
+        files[0] && files[0].size <= 5 * 1024 * 1024, // 5MB max
+      {
+        message: "Image must be smaller than 5MB",
+      }
+    )
+    .refine(
+      (files) => {
+        if (!files[0]) return false;
+
+        return [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+        ].includes(files[0].type);
+      },
+      {
+        message: "Only JPG, PNG or WebP images are allowed",
+      }
+    ),
+});
+export type ImageFileFormType = z.infer<
+  typeof imageFileSchema
+>;

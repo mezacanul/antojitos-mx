@@ -49,10 +49,10 @@
     @apply flex flex-col gap-2 items-start;
     @apply border border-gray-300 rounded-md p-3;
     @apply bg-white;
-    @apply cursor-pointer;
+    /* @apply cursor-pointer; */
     @apply transition-all duration-300;
     @apply shadow-md;
-    @apply hover:bg-gray-100;
+    /* @apply hover:bg-gray-100; */
   }
 
   .category-card {

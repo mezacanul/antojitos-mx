@@ -20,7 +20,17 @@ async function getProductCategoriesByBusinessId(
   return res;
 }
 
+async function getProductCategoryById(
+  productCategoryId: string
+): Promise<any> {
+  const res = await performAction(
+    `/products/categories?id=${productCategoryId}`
+  );
+  return res;
+}
+
 export {
   getProductsByBusinessId,
   getProductCategoriesByBusinessId,
+  getProductCategoryById,
 };
