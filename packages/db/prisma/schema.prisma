@@ -93,7 +93,7 @@ model Branch {
   business   Business @relation(fields: [businessId], references: [id])
 
   users         User[]
-  products      Product[] // For branch-specific inventory/availability
+  // products      Product[] // For branch-specific inventory/availability
   reviews       Reviews[]
   favorites     Favorites[]
   exchangeRates ExchangeRate[]
@@ -145,7 +145,7 @@ model Product {
   // Custom 
   name        String
   description String
-  baseUnit    BaseUnit @default(pza)
+  baseUnit    BaseUnit @default(piece)
   imageUrl    String?
 
   // Relations
@@ -153,14 +153,18 @@ model Product {
   productCategory   ProductCategory? @relation(fields: [productCategoryId], references: [id])
   businessId        String
   business          Business         @relation(fields: [businessId], references: [id])
-  branchId          String?
-  branch            Branch?          @relation(fields: [branchId], references: [id])
+  // branchId          String?
+  // branch            Branch?          @relation(fields: [branchId], references: [id])
+  favorites         Favorites[]
+  prices            Price[]
+  productVariants   ProductVariant[]
 
   // Logical deletion for audit trails
-  isDeleted       Boolean          @default(false)
-  favorites       Favorites[]
-  prices          Price[]
-  productVariants ProductVariant[]
+  isDeleted Boolean @default(false)
+  isActive  Boolean @default(true)
+  // @@index([branchId])
+
+  @@index([businessId])
 }
 
 model Reviews {
@@ -201,14 +205,15 @@ model Favorites {
 }
 
 enum BaseUnit {
-  pza
+  piece
   gr
   kg
   ml
   lt
   lb
-  floz
   oz
+  floz
+  size
 }
 
 // 2. Business Categories (Marketplace level)
@@ -235,12 +240,16 @@ model ProductCategory {
 
 // 4. Prices (Linked to Product)
 model Price {
-  id     String  @id @default(uuid())
-  amount Decimal @db.Decimal(10, 2)
-  price  Float   @default(1) // e.g., 500 for "500 gr"
+  id        String   @id @default(uuid())
+  price     Float // e.g., 500 for "500 gr"
+  quantity  Decimal? @default(1) @db.Decimal(10, 2)
+  sizeLabel String?
 
   productId String
   product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, sizeLabel, quantity]) // safety against duplicates
+  @@index([productId])
 }
 
 model ProductVariant {
@@ -248,6 +257,13 @@ model ProductVariant {
   name      String
   productId String
   product   Product @relation(fields: [productId], references: [id])
+
+  sku      String? @unique
+  stock    Int     @default(0)
+  isActive Boolean @default(true)
+
+  @@unique([productId, name])
+  @@index([productId])
 }
 
 // 5. Currencies (Global Reference)
@@ -275,4 +291,36 @@ model ExchangeRate {
   branch   Branch? @relation(fields: [branchId], references: [id])
 
   @@unique([currencyId, businessId, branchId])
+}
+
+model Country {
+  code      String  @unique
+  name      String
+  phoneCode String?
+
+  id     String  @id @default(uuid())
+  states State[]
+}
+
+model State {
+  code String
+  name String
+
+  id          String  @id @default(uuid())
+  countryCode String
+  country     Country @relation(fields: [countryCode], references: [code])
+  cities      City[]
+
+  @@index([countryCode])
+}
+
+model City {
+  name String
+
+  id      String @id @default(uuid())
+  stateId String
+  state   State  @relation(fields: [stateId], references: [id])
+
+  @@unique([name, stateId])
+  @@index([stateId])
 }
