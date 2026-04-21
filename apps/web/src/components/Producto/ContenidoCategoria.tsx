@@ -1,9 +1,9 @@
 import { getProductCategoryById } from "@/lib/data/products";
 import { cn } from "@/utils/cn";
 import ProductList from "../Empresas/Productos/List";
-import ModalProducto from "../Empresas/Productos/ModalProducto";
-import FormularioProducto from "../Empresas/Productos/ModalProducto/FormularioProducto";
 import { getAllBaseUnits } from "@/lib/data/catalogs";
+import Link from "next/link";
+import { BiFoodMenu } from "react-icons/bi";
 
 export default async function ContenidoCategoria({
   pcid,
@@ -18,30 +18,46 @@ export default async function ContenidoCategoria({
 
   const cns = {
     container: cn(
-      "flex flex-col items-center gap-4",
+      "flex flex-col items-start gap-4",
       "p-6 border-3 rounded-md",
       "border-blue-700/20",
-      "border-orange-600/30",
-      // "bg-white",
+      // "border-orange-600/30",
+      "bg-white",
       "w-full"
     ),
-    title: "text-2xl font-bold text-center",
+    header: "flex w-full justify-between gap-4 items-start",
+    title: "text-4xl font-bold flex items-center gap-2",
   };
-  
+
   return (
     <div className={cns.container}>
-      <h2 className={cns.title}>{category.name}</h2>
+      <div className={cns.header}>
+        <div className="flex flex-col gap-2">
+          <h2 className={cns.title}>
+            <span>
+              <BiFoodMenu />
+            </span>
+            <span>{category.name}</span>
+          </h2>
+          <p>{"Catálogo de productos"}</p>
+        </div>
 
-      <ModalProducto
-        label="Agregar producto"
-        btnClass="btn-base"
-      >
-        <h2 className="text-2xl font-bold text-gray-900 mb-5">
-          {"Nuevo producto"}
-        </h2>
-        <FormularioProducto baseUnits={baseUnits} />
-      </ModalProducto>
-
+        <Link
+          href={`/empresas/panel/productos/nuevo?pcid=${pcid}`}
+          className="btn-base font-bold text-base"
+        >
+          {"Agregar producto"}
+        </Link>
+        {/* <ModalProducto
+          label="Agregar producto"
+          btnClass="btn-base py-0"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 mb-5">
+            {"Nuevo producto"}
+          </h2>
+          <FormularioProducto baseUnits={baseUnits} />
+        </ModalProducto> */}
+      </div>
       <ProductList products={[]} />
     </div>
   );

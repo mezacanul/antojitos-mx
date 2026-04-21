@@ -240,7 +240,8 @@ model ProductCategory {
 
 // 4. Prices (Linked to Product)
 model Price {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
+
   price     Float // e.g., 500 for "500 gr"
   quantity  Decimal? @default(1) @db.Decimal(10, 2)
   sizeLabel String?
@@ -253,14 +254,13 @@ model Price {
 }
 
 model ProductVariant {
-  id        String  @id @default(uuid())
-  name      String
+  id String @id @default(uuid())
+
+  name     String
+  isActive Boolean @default(true)
+
   productId String
   product   Product @relation(fields: [productId], references: [id])
-
-  sku      String? @unique
-  stock    Int     @default(0)
-  isActive Boolean @default(true)
 
   @@unique([productId, name])
   @@index([productId])

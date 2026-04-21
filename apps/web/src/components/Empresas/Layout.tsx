@@ -34,10 +34,10 @@ export default function Layout({
       <div className="flex flex-col">
         <ContentHeader business={business} />
         <div className="pd-panel flex flex-col items-start w-full">
-          <h1 className="text-4xl mb-6">
-            {capitalized}
-          </h1>
-          {children}
+          <h1 className="text-3xl mb-6">{capitalized}</h1>
+          <div className="h-[65vh] w-full overflow-y-auto">
+            {children}
+          </div>
         </div>
       </div>
     </div>

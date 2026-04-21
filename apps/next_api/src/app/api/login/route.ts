@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const json = await request.json();
     const validatedData = LoginDTO.parse(json);
     const { email, password } = validatedData;
-    const session = await authService.signIn(
+    const session = await authService.login(
       email,
       password
     );

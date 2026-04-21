@@ -11,9 +11,11 @@ export default async function ListaCategorias({
     await getProductCategoriesByBusinessId(businessId);
 
   return (
-    <div className="flex h-full flex-col gap-8 w-full">
+    <div className="flex flex-col gap-8 w-full h-full">
+      <div className="h-full pb-6">
+        <CategoryList categories={ProductCategoryList} />
+      </div>
       <FormularioCategoria businessId={businessId} />
-      <CategoryList categories={ProductCategoryList} />
     </div>
   );
 }

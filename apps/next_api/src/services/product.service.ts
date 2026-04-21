@@ -52,7 +52,6 @@ export const productService = {
           name,
           description,
           businessId,
-          branchId,
           imageUrl: storageData.path, // Store the path to retrieve it later
         },
       });
