@@ -49,3 +49,12 @@ export const deleteProductCategory = async (id: string) => {
     where: { id: id },
   });
 };
+
+export const createProduct = async (
+  productData: any,
+  tx = prisma
+) => {
+  return await tx.product.create({
+    data: productData,
+  });
+};

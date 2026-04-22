@@ -84,7 +84,7 @@ export async function proxy(request: NextRequest) {
       { status: 401 }
     );
   }
-  console.log("requestHeaders", requestHeaders);
+  // console.log("requestHeaders", requestHeaders);
 
   // 4. If everything is valid, proceed
   return NextResponse.next({

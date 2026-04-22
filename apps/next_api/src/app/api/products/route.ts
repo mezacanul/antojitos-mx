@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { productService } from "@/services/product.service";
 import { getProductsByBusinessId } from "@/repositories/product.repo";
+import {
+  CreateProductDTO,
+  ProductCreateInputSchema,
+} from "@antojitos-mx/shared";
+import { handleZodError } from "@/lib/response";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -26,18 +31,29 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  try {
-    const formData = await req.formData();
-    // You get the businessId from the user session validated in your middleware
+  // console.log("req", req);
+  const businessId = req.headers.get(
+    "proxy-business-id"
+  ) as string;
+  const formData = await req.clone().formData();
+  const rawData = Object.fromEntries(formData.entries());
+  // console.log("rawData", rawData);
 
-    const product = await productService.createProduct(
-      formData
-    );
-    return NextResponse.json(product, { status: 201 });
-  } catch (error: any) {
+  try {
+    const validatedData = CreateProductDTO.parse(rawData);
+    // console.log("validatedData", validatedData);
+    const createdProduct =
+      await productService.createProduct(
+        validatedData,
+        businessId
+      );
+    console.log("createdProduct", createdProduct);
     return NextResponse.json(
-      { error: error.message },
-      { status: 400 }
+      { createdProduct },
+      { status: 200 }
     );
+  } catch (error: any) {
+    console.log("error from POST /api/products", error);
+    return handleZodError(error);
   }
 }

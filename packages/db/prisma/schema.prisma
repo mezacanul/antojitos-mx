@@ -147,10 +147,11 @@ model Product {
   description String
   baseUnit    BaseUnit @default(piece)
   imageUrl    String?
+  imageId     String?
 
   // Relations
-  productCategoryId String?
-  productCategory   ProductCategory? @relation(fields: [productCategoryId], references: [id])
+  productCategoryId String
+  productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
   businessId        String
   business          Business         @relation(fields: [businessId], references: [id])
   // branchId          String?
@@ -164,6 +165,7 @@ model Product {
   isActive  Boolean @default(true)
   // @@index([branchId])
 
+  @@unique([businessId, name])
   @@index([businessId])
 }
 
@@ -242,9 +244,10 @@ model ProductCategory {
 model Price {
   id String @id @default(uuid())
 
-  price     Float // e.g., 500 for "500 gr"
-  quantity  Decimal? @default(1) @db.Decimal(10, 2)
+  price     Decimal  @db.Decimal(10, 2) // e.g., 500 for "500 gr"
+  quantity  Decimal? @db.Decimal(10, 2)
   sizeLabel String?
+  isActive  Boolean  @default(true)
 
   productId String
   product   Product @relation(fields: [productId], references: [id])

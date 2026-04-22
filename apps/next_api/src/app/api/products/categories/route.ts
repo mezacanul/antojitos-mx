@@ -15,8 +15,6 @@ export async function GET(req: Request) {
   const businessId = searchParams.get(
     "businessId"
   ) as string;
-  console.log("id", id);
-  console.log("businessId", businessId);
 
   try {
     if (id) {
