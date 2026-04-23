@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 export const CreateProductDTO = z.object({
   name: z.string().min(1),
@@ -58,6 +59,7 @@ export type CreateProductType = z.infer<
 >;
 
 export const UpdateProductDTO = CreateProductDTO.omit({
+  image: true,
   variants: true,
   prices: true,
 }).extend({
@@ -77,4 +79,64 @@ export const UpsertProductImageDTO = z.object({
 
 export type UpsertProductImageType = z.infer<
   typeof UpsertProductImageDTO
+>;
+
+export const DeleteProductImageDTO =
+  UpsertProductImageDTO.omit({
+    image: true,
+  });
+
+export type DeleteProductImageType = z.infer<
+  typeof DeleteProductImageDTO
+>;
+
+export const UpdateProductVariantsDTO = z.object({
+  productId: z.string().min(25).max(25),
+  variants: z.array(
+    z.object({
+      // Required fields for new variants.
+      name: z.string().min(3),
+      // Optional fields for existing variants.
+      id: z.string().min(36).max(36).optional(),
+      isActive: z.boolean().optional(),
+    })
+  ),
+});
+
+export type UpdateProductVariantsType = z.infer<
+  typeof UpdateProductVariantsDTO
+>;
+
+export const UpdateProductPricesDTO = z.object({
+  productId: z.string().min(25).max(25),
+  prices: z.array(
+    z.object({
+      // Required fields for new prices.
+      price: z.coerce
+        .number()
+        .transform((val) => new Prisma.Decimal(val)),
+
+      // Optional fields for new prices.
+      quantity: z.coerce
+        .number()
+        .transform((val) => new Prisma.Decimal(val))
+        .nullable()
+        .optional(),
+      sizeLabel: z
+        .string()
+        .min(2)
+        .max(30)
+        .nullable()
+        .optional(),
+
+      // Optional fields for existing prices.
+      id: z.string().min(36).max(36).optional(),
+      isActive: z.boolean().optional(),
+      productId: z.string().min(25).max(25).optional(),
+    })
+  ),
+});
+
+export type UpdateProductPricesType = z.infer<
+  typeof UpdateProductPricesDTO
 >;

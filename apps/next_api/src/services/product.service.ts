@@ -1,10 +1,16 @@
 // services/product.service.ts
 import { uploadImageToSupabase } from "@/lib/images";
+import {
+  getDiffPrices,
+  getDiffVariants,
+} from "@/utils/diff";
 import { createSSR_Client } from "@/utils/supabase/server";
 import { prisma } from "@antojitos-mx/db"; // Your prisma instance
 import {
   BaseUnitType,
   CreateProductType,
+  Price,
+  ProductVariant,
   UpdateProductType,
 } from "@antojitos-mx/shared";
 
@@ -103,32 +109,7 @@ async function updateProduct(
   productId: string,
   businessId: string
 ) {
-  let supabase: any;
-  let sbResponse: any;
-  const bucketName = "products";
   try {
-    const existingProduct = await prisma.product.findUnique(
-      {
-        where: { id: productId, businessId },
-        select: { imageUrl: true, imageId: true },
-      }
-    );
-
-    const file = validatedData.image;
-
-    // Upload the image to Supabase if it
-    // exists in the request
-    if (file) {
-      supabase = await createSSR_Client();
-      const { data: storageData, error: storageError } =
-        await uploadImageToSupabase({
-          file: file as File,
-          bucketName,
-          supabase,
-        });
-      sbResponse = { storageData, storageError };
-    }
-
     const transaction = await prisma.$transaction(
       async (tx) => {
         const updatedProduct = await tx.product.update({
@@ -136,12 +117,6 @@ async function updateProduct(
           data: {
             name: validatedData.name,
             description: validatedData.description,
-            ...(sbResponse
-              ? {
-                  imageUrl: sbResponse.storageData.path,
-                  imageId: sbResponse.storageData.id,
-                }
-              : {}),
             baseUnit:
               validatedData.baseUnit as BaseUnitType,
             isActive: validatedData.isActive,
@@ -156,42 +131,13 @@ async function updateProduct(
       }
     );
 
-    // Delete the old image from Supabase only after
-    // a successful database update.
-    if (sbResponse && existingProduct?.imageUrl) {
-      try {
-        supabase = supabase ?? (await createSSR_Client());
-        await supabase.storage
-          .from(bucketName)
-          .remove([existingProduct.imageUrl]);
-      } catch (deleteError) {
-        console.log(
-          "failed to delete old image:",
-          deleteError
-        );
-      }
-    }
-
-    return transaction;
+    return {
+      message: "!Producto actualizado exitosamente!",
+      data: {
+        transaction,
+      },
+    };
   } catch (error: any) {
-    // Delete the newly uploaded file from Supabase
-    // if there was an error updating the product
-    if (sbResponse) {
-      try {
-        await supabase.storage
-          .from(bucketName)
-          .remove([sbResponse.storageData.path]);
-        console.log(
-          "deleted uploaded image:",
-          sbResponse.storageData.path
-        );
-      } catch (deleteError) {
-        console.log(
-          "failed to delete uploaded image:",
-          deleteError
-        );
-      }
-    }
     // Throw the error to be handled
     // by the caller (the controller)
     throw error;
@@ -238,6 +184,12 @@ async function upsertProductImage(
             imageUrl: sbResponse.storageData.path,
             imageId: sbResponse.storageData.id,
           },
+          select: {
+            id: true,
+            name: true,
+            imageUrl: true,
+            imageId: true,
+          },
         });
         return updatedProduct;
       }
@@ -275,40 +227,219 @@ async function upsertProductImage(
     throw error;
   }
 }
+
+async function deleteProductImage(
+  businessId: string,
+  productId: string
+) {
+  let supabase: any;
+  let sbResponse: any;
+  const bucketName = "products";
+  try {
+    const existingProduct = await prisma.product.findUnique(
+      {
+        where: { id: productId, businessId },
+        select: { imageUrl: true },
+      }
+    );
+
+    if (existingProduct?.imageUrl) {
+      supabase = await createSSR_Client();
+      const { data: deletedFile, error: deletedFileError } =
+        await supabase.storage
+          .from(bucketName)
+          .remove([existingProduct.imageUrl]);
+      sbResponse = { deletedFile, deletedFileError };
+
+      const transaction = await prisma.$transaction(
+        async (tx) => {
+          const updatedProduct = await tx.product.update({
+            where: { id: productId, businessId },
+            data: { imageUrl: null, imageId: null },
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+              imageId: true,
+            },
+          });
+          return updatedProduct;
+        }
+      );
+
+      return {
+        message: "!Imagen eliminada exitosamente!",
+        data: {
+          transaction,
+          storageData: sbResponse?.deletedFile ?? null,
+        },
+      };
+    } else {
+      throw new Error("Imagen no encontrada");
+    }
+  } catch (error: any) {
+    throw error;
+  }
+}
+
 // TO DO:
 // - Upsert / Delete product variants conditionally
 // - Upsert / Delete product prices conditionally
-// updateProductVariants: async (
-//   productId: string,
-//   businessId: string,
-//   variants: ProductVariantType[]
-// ) => {
-//   try {
-//     const updatedProduct = await prisma.product.update({
-//       where: { id: productId, businessId },
-//     });
-//   } catch (error: any) {
-//     throw error;
-//   }
-// },
-// updateProductPrices: async (
-//   productId: string,
-//   businessId: string,
-//   prices: ProductPriceType[]
-// ) => {
-//   try {
-//     const updatedProduct = await prisma.product.update({
-//       where: { id: productId, businessId },
-//     });
-//   } catch (error: any) {
-//     throw error;
-//   }
-// },
+async function updateProductVariants(
+  productId: string,
+  businessId: string,
+  variants: ProductVariant[]
+) {
+  try {
+    const incomingData = variants;
+
+    const transaction = await prisma.$transaction(
+      async (tx) => {
+        // 1. FETCH (Inside the safety of the transaction)
+        const existing =
+          (await tx.productVariant.findMany({
+            where: {
+              product: {
+                businessId: businessId,
+                id: productId,
+              },
+            },
+          })) || [];
+
+        // 2. LOGIC (Separate this into a helper function if it feels clunky)
+        const { toCreate, toUpdate, toDelete } =
+          getDiffVariants(
+            incomingData,
+            existing,
+            productId
+          );
+
+        // return {
+        //   existing,
+        //   incomingData,
+        //   toCreate,
+        //   toUpdate,
+        //   toDelete,
+        // };
+
+        // 3. EXECUTION
+        // 3.1. Delete missing variants.
+        const toDeleteIds = toDelete.map((v) => v.id);
+        const deletedData =
+          await tx.productVariant.deleteMany({
+            where: { id: { in: toDeleteIds } },
+          });
+
+        // 4. Create brand new variants.
+        const createdData =
+          await tx.productVariant.createMany({
+            data: toCreate,
+          });
+
+        // 5. Update only changed variants.
+        const updatedData = await Promise.all(
+          toUpdate.map((v) =>
+            tx.productVariant.update({
+              where: { id: v.id },
+              data: v.data,
+            })
+          )
+        );
+        return {
+          deletedData,
+          createdData,
+          updatedData,
+        };
+      }
+    );
+    return {
+      message: "!Variantes actualizadas exitosamente!",
+      data: {
+        transaction,
+      },
+    };
+  } catch (error: any) {
+    throw error;
+  }
+}
+
+async function updateProductPrices(
+  productId: string,
+  businessId: string,
+  prices: Price[]
+) {
+  try {
+    const incomingData = prices;
+
+    const transaction = await prisma.$transaction(
+      async (tx) => {
+        // 1. FETCH (Inside the safety of the transaction)
+        const existing =
+          (await tx.price.findMany({
+            where: {
+              product: {
+                businessId: businessId,
+                id: productId,
+              },
+            },
+          })) || [];
+
+        // 2. LOGIC (Separate this into a helper function if it feels clunky)
+        const { toCreate, toUpdate, toDelete } =
+          getDiffPrices(incomingData, existing, productId);
+        // return {
+        //   // existing,
+        //   // incomingData,
+        //   toCreate,
+        //   toUpdate,
+        //   toDelete,
+        // };
+
+        // 3. EXECUTION
+        // 3.1. Delete missing prices.
+        const toDeleteIds = toDelete.map((p) => p.id);
+        const deletedData = await tx.price.deleteMany({
+          where: { id: { in: toDeleteIds } },
+        });
+
+        // 4. Create brand new prices.
+        const createdData = await tx.price.createMany({
+          data: toCreate,
+        });
+
+        // 5. Update only changed prices.
+        const updatedData = await Promise.all(
+          toUpdate.map((p) =>
+            tx.price.update({
+              where: { id: p.id },
+              data: p.data,
+            })
+          )
+        );
+        return {
+          deletedData,
+          createdData,
+          updatedData,
+        };
+      }
+    );
+
+    return {
+      message: "!Precios actualizados exitosamente!",
+      data: {
+        transaction,
+      },
+    };
+  } catch (error: any) {
+    throw error;
+  }
+}
 
 export const productService = {
   createProduct,
   updateProduct,
   upsertProductImage,
-  // updateProductVariants,
-  // updateProductPrices,
+  deleteProductImage,
+  updateProductVariants,
+  updateProductPrices,
 };
