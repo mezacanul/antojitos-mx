@@ -56,3 +56,25 @@ export const CreateProductDTO = z.object({
 export type CreateProductType = z.infer<
   typeof CreateProductDTO
 >;
+
+export const UpdateProductDTO = CreateProductDTO.omit({
+  variants: true,
+  prices: true,
+}).extend({
+  id: z.string().min(25).max(25),
+  isActive: z.boolean(),
+});
+
+export type UpdateProductType = z.infer<
+  typeof UpdateProductDTO
+>;
+
+export const UpsertProductImageDTO = z.object({
+  productId: z.string().min(25).max(25),
+  businessId: z.string().min(25).max(25),
+  image: z.instanceof(File),
+});
+
+export type UpsertProductImageType = z.infer<
+  typeof UpsertProductImageDTO
+>;
