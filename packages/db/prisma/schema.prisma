@@ -78,8 +78,8 @@ model Branch {
   longitude Float
   city      String
   state     String
-  address   String?
-  zip       String?
+  address   String
+  zip       String 
   imageUrl  String?
   // internal_code String  @unique
 

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Menius | Empresas",
+  title: "Meniux | Empresas",
   description:
     "A template for a Next.js project with Tailwind CSS, TypeScript and the App Router",
 };

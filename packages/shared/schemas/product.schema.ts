@@ -140,3 +140,12 @@ export const UpdateProductPricesDTO = z.object({
 export type UpdateProductPricesType = z.infer<
   typeof UpdateProductPricesDTO
 >;
+
+export const CreateProductCategoryDTO = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+});
+
+export type CreateProductCategoryType = z.infer<
+  typeof CreateProductCategoryDTO
+>;

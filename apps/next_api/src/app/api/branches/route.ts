@@ -1,13 +1,12 @@
 // apps/next_api/src/app/api/branches/route.ts
-import { createSSR_Client } from "@/utils/supabase/server";
-import { authService } from "@/services/auth.service";
-import { createBranch } from "@/services/branch.service";
 import { NextResponse } from "next/server";
-import { getBranchesByBusinessId } from "@/services/branch.service";
+import { BranchRepository } from "@/repositories/branch.repo";
+import { handleZodError } from "@/lib/response";
+import { BranchCreateInputSchema } from "@antojitos-mx/shared/generated/zod";
+import { CreateBranchDTO } from "@antojitos-mx/shared";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const businessId = searchParams.get("businessId");
+  const businessId = req.headers.get("proxy-business-id");
 
   if (!businessId) {
     return NextResponse.json(
@@ -17,51 +16,31 @@ export async function GET(req: Request) {
   }
 
   try {
-    const branches = await getBranchesByBusinessId(
-      businessId
-    );
+    const branches =
+      await BranchRepository.getBranchesByBusinessId(
+        businessId
+      );
     return NextResponse.json(branches, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 400 }
-    );
+    return handleZodError(error);
   }
 }
 
 export async function POST(req: Request) {
-  // const supabase = await createSSR_Client();
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-  const { user, error } = await authService.getSession();
-
-  // Scenario: Add branch WITHOUT a session
-  if (!user) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
   try {
-    const body = await req.json();
+    const businessId = req.headers.get("proxy-business-id");
+    const role = req.headers.get("proxy-user-role");
 
-    // Scenario: Add branch WITH a session
-    const branch = await createBranch(
-      user.id,
-      body.name,
-      body.city,
-      body.state,
-      body.latitude,
-      body.longitude
+    const body = await req.json();
+    const validatedBody = CreateBranchDTO.parse(body);
+    const branch = await BranchRepository.createBranch(
+      role as string,
+      businessId as string,
+      validatedBody
     );
 
     return NextResponse.json(branch, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 400 }
-    );
+    return handleZodError(error);
   }
 }

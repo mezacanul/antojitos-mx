@@ -22,7 +22,7 @@ export default function BranchList({
             key={branch.id}
           >
             <h2 className="font-bold">{branch.name}</h2>
-            <h2>{branch.address}</h2>
+            {branch.address && <h2>{branch.address}</h2>}
           </Link>
         ))}
       </div>

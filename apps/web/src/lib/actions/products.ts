@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 export async function createProductCategory(payload: any) {
   console.log("payload:", payload);
   const result = await performAction(
-    "/products/categories",
+    "/products/category",
     {
       method: "POST",
       body: JSON.stringify(payload),

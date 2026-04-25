@@ -3,6 +3,7 @@ type Business = {
   name: string;
   description: string;
   // image: string;
+  imageUrl: string;
   created_at: string;
   updated_at: string;
 };

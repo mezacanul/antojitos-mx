@@ -1,5 +1,8 @@
 import { prisma } from "@antojitos-mx/db";
 
+// -------------------
+// Products
+// -------------------
 export const getProductsByBusinessId = async (
   businessId: string
 ) => {
@@ -10,6 +13,18 @@ export const getProductsByBusinessId = async (
   });
 };
 
+export const createProduct = async (
+  productData: any,
+  tx = prisma
+) => {
+  return await tx.product.create({
+    data: productData,
+  });
+};
+
+// -------------------
+// Product categories
+// -------------------
 export const getProductCategoriesByBusinessId = async (
   businessId: string
 ) => {
@@ -20,17 +35,19 @@ export const getProductCategoriesByBusinessId = async (
   });
 };
 
-export const getCategoryById = async (id: string) => {
-  return await prisma.productCategory.findUnique({
-    where: { id: id },
-  });
-};
-
 export const createProductCategory = async (
   categoryData: any
 ) => {
   return await prisma.productCategory.create({
     data: categoryData,
+  });
+};
+
+export const getProductCategoryById = async (
+  id: string
+) => {
+  return await prisma.productCategory.findUnique({
+    where: { id: id },
   });
 };
 
@@ -47,14 +64,5 @@ export const updateProductCategory = async (
 export const deleteProductCategory = async (id: string) => {
   return await prisma.productCategory.delete({
     where: { id: id },
-  });
-};
-
-export const createProduct = async (
-  productData: any,
-  tx = prisma
-) => {
-  return await tx.product.create({
-    data: productData,
   });
 };

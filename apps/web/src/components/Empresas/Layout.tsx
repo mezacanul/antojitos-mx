@@ -3,6 +3,8 @@ import { cn } from "@/utils/cn";
 import Link from "next/link";
 import { logout } from "@/lib/auth";
 import { Business } from "@/types";
+import Image from "next/image";
+import ImageInput from "../common/ImageInput";
 
 export default function Layout({
   business,
@@ -53,10 +55,11 @@ function ContentHeader({
     <div
       className={cn(
         "flex gap-2 pd-panel bg-white",
-        "justify-between items-start",
+        "justify-between items-center",
         "border-b border-black/80"
       )}
     >
+      {/* Left side of the header */}
       <div>
         <h1 className="text-2xl font-bold text-orange-600/80">
           Panel de control
@@ -64,13 +67,21 @@ function ContentHeader({
         <p>Bienvenido, {"user.name"}</p>
       </div>
 
-      <div className="flex flex-col gap-2 items-end">
-        <h2 className="text-3xl font-bold">
-          {business.name}
-        </h2>
-        <div className="badge badge-success">
-          {"Abierto"}
+      {/* Right side of the header */}
+      <div className="flex gap-4 items-center">
+        <div className="flex flex-col gap-2 items-end">
+          <h2 className="text-3xl font-bold">
+            {business.name}
+          </h2>
+          <div className="badge badge-success">
+            {"Abierto"}
+          </div>
         </div>
+
+        <ImageInput
+          imageSrc={business.imageUrl}
+          // imageSrc={"/logo_b.jpg"}
+        />
       </div>
     </div>
   );

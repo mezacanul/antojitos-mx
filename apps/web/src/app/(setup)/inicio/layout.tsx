@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Menius",
+  title: "Meniux",
   description: "Your favorite food app",
 };
 

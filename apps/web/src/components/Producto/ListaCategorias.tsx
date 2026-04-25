@@ -1,6 +1,6 @@
 import FormularioCategoria from "@/components/Empresas/Productos/FormularioCategoria";
 import CategoryList from "@/components/Empresas/Productos/CategoryList";
-import { getProductCategoriesByBusinessId } from "@/lib/data/products";
+import { getAllProductCategories } from "@/lib/data/products";
 
 export default async function ListaCategorias({
   businessId,
@@ -8,7 +8,7 @@ export default async function ListaCategorias({
   businessId: string;
 }) {
   const ProductCategoryList =
-    await getProductCategoriesByBusinessId(businessId);
+    await getAllProductCategories();
 
   return (
     <div className="flex flex-col gap-8 w-full h-full">

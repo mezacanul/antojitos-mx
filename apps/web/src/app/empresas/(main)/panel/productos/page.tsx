@@ -22,7 +22,7 @@ export default async function Home({
   // console.log("Business:", business);
   const businessId = business.id;
 
-  // If no Product Category ID is provided,
-  // show the category list
+  // // If no Product Category ID is provided,
+  // // show the category list
   return <ListaCategorias businessId={businessId} />;
 }
