@@ -1,28 +1,16 @@
-import { getBusinessByUserId } from "@/lib/data/business";
-import ContenidoCategoria from "@/components/Producto/ContenidoCategoria";
-import ListaCategorias from "@/components/Producto/ListaCategorias";
+import { getProductsBySession_Categorized } from "@/lib/data/products";
+import ProductList from "@/components/Empresas/Productos/List";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
-}) {
-  const pcid = (await searchParams).pcid as string;
-  console.log("pcid:", pcid);
+export default async function Home() {
+  const productsByCategory =
+    await getProductsBySession_Categorized();
+  console.log("productsByCategory:", productsByCategory);
 
-  // If Product Category ID is provided,
-  // show the product list
-  if (pcid) {
-    return <ContenidoCategoria pcid={pcid} />;
-  }
-
-  const business = await getBusinessByUserId();
-  // console.log("Business:", business);
-  const businessId = business.id;
-
-  // // If no Product Category ID is provided,
-  // // show the category list
-  return <ListaCategorias businessId={businessId} />;
+  return (
+    <div>
+      <ProductList
+        productsByCategory={productsByCategory}
+      />
+    </div>
+  );
 }

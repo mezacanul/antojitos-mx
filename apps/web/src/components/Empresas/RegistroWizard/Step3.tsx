@@ -1,3 +1,4 @@
+"use client";
 import { TextInput } from "@/components/Brand/TextInput";
 import { useForm } from "react-hook-form";
 import {
@@ -9,16 +10,20 @@ import {
   useBranchFormStore,
 } from "@/store/useBranchFormStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CitySelector } from "./CitySelector";
 
 export function Step3({
   setStep,
+  states,
 }: {
   setStep: (step: number) => void;
+  states: any[];
 }) {
   const { setBranchFormData } = useBranchFormStore();
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<BranchFormType>({
     resolver: zodResolver(branchFormSchema),
@@ -50,6 +55,12 @@ export function Step3({
       />
 
       <TextInput
+        spreadProps={{ ...register("zip") }}
+        placeholder="Código postal"
+        errors={errors.zip}
+      />
+
+      <TextInput
         spreadProps={{ ...register("latitude") }}
         placeholder="Latitud"
         errors={errors.latitude}
@@ -60,6 +71,35 @@ export function Step3({
         placeholder="Longitud"
         errors={errors.longitude}
       />
+
+      <select
+        className="input-text"
+        {...register("stateId")}
+      >
+        <option value="" disabled>
+          Selecciona un estado
+        </option>
+        {states.map((state) => (
+          <option key={state.id} value={state.id}>
+            {state.name}
+          </option>
+        ))}
+      </select>
+      {errors.stateId && (
+        <p className="text-red-500 text-xs px-1">
+          {errors.stateId.message}
+        </p>
+      )}
+
+      <CitySelector
+        control={control}
+        spreadProps={{ ...register("cityId") }}
+      />
+      {errors.cityId && (
+        <p className="text-red-500 text-xs px-1">
+          {errors.cityId.message}
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         <button

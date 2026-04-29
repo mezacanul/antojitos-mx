@@ -24,7 +24,7 @@ export default function ProductCard({
     useForm<ImageFileFormType>({
       resolver: zodResolver(imageFileSchema),
       defaultValues: {
-        image: null as unknown as FileList,
+        image: null as unknown as File,
       },
       mode: "onBlur",
     });

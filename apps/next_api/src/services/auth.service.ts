@@ -7,9 +7,20 @@ async function getSession() {
   const supabase = await createSSR_Client();
   const {
     data: { user },
-    error: supabaseError,
+    error: userError,
   } = await supabase.auth.getUser();
-  return { user, error: supabaseError };
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+  if (userError || sessionError) {
+    throw new Error(
+      userError?.message || sessionError?.message
+    );
+  }
+  const send = { user, userError, session, sessionError };
+  console.log("getSession", send);
+  return send;
 }
 
 async function login(email: string, password: string) {

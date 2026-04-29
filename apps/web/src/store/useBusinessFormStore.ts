@@ -10,8 +10,6 @@ type BusinessFormStore = {
 export const defaultBusinessFormData: BusinessFormType = {
   name: "",
   category_id: "",
-  city: "",
-  state: "",
 };
 
 export const useBusinessFormStore =

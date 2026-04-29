@@ -10,7 +10,9 @@ export default function Home() {
 function Checklist() {
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">Checklist</h2>
+      <p>{"Checklist de pendientes"}</p>
+      <p>{"Detalles de la empresa"}</p>
+      {/* <p>{"Horarios de la empresa"}</p> */}
     </div>
   );
 }

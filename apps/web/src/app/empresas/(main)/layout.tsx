@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import Layout from "@/components/Empresas/Layout";
-import { getBusinessByUserId } from "@/lib/data/business";
+import { getBusinessByUserSession } from "@/lib/data/business";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +25,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const business = await getBusinessByUserId();
+  const business = await getBusinessByUserSession();
   return (
     <html
       lang="en"

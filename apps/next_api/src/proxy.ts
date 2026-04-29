@@ -12,6 +12,7 @@ export async function proxy(request: NextRequest) {
   // 1. Skip middleware for unprotected API endpoints
   const isUnprotectedApi =
     pathname.startsWith("/api/onboarding") ||
+    pathname.startsWith("/api/geo") ||
     pathname.startsWith("/api/signup") ||
     pathname.startsWith("/api/login") ||
     pathname.startsWith("/api/catalogs");
@@ -22,11 +23,11 @@ export async function proxy(request: NextRequest) {
 
   // 2. Double-check the session is active with Supabase
   // This validates the JWT against the Supabase Auth server
-  const { user, error } = await authService.getSession();
+  const { user, userError } = await authService.getSession();
   // console.log(user, error);
 
   // 3. API-only: Return 401 Unauthorized if no valid session
-  if (error || !user) {
+  if (userError || !user) {
     return NextResponse.json(
       {
         error: "Unauthorized",

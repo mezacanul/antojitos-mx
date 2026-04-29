@@ -17,21 +17,30 @@ generator zod {
 }
 
 model Business {
-  // Custom 
-  name      String
-  phone     String?
-  email     String? @unique
-  website   String? @unique
-  address   String?
-  city      String
-  state     String
-  country   String  @default("MX")
-  zip       String?
-  latitude  Float?
-  longitude Float?
-  timezone  String?
-  rfc       String? @unique
-  imageUrl  String?
+  // Custom fields (Required)
+  name String @unique
+
+  // Additional fields (Optional)
+  // Business Picture 
+  imageUrl String?
+  // Address information
+  address  String?
+  zip      String?
+  // Contact information
+  phone    String?
+  email    String? @unique
+  website  String? @unique
+  // Timezone information
+  timezone String?
+  rfc      String? @unique
+
+  // Regional information
+  // cityId      String
+  // city        City    @relation(fields: [cityId], references: [id])
+  // stateId     String
+  // state       State   @relation(fields: [stateId], references: [id])
+  countryCode String  @default("MX")
+  country     Country @relation(fields: [countryCode], references: [code])
 
   // System 
   id        String   @id @default(cuid())
@@ -74,13 +83,10 @@ model Tenant {
 model Branch {
   // Custom 
   name      String
+  address   String
+  zip       String
   latitude  Float
   longitude Float
-  city      String
-  state     String
-  address   String
-  zip       String 
-  imageUrl  String?
   // internal_code String  @unique
 
   // System 
@@ -89,6 +95,10 @@ model Branch {
   updatedAt DateTime @updatedAt
 
   // Relations
+  cityId     String
+  city       City     @relation(fields: [cityId], references: [id])
+  stateId    String
+  state      State    @relation(fields: [stateId], references: [id])
   businessId String
   business   Business @relation(fields: [businessId], references: [id])
 
@@ -97,6 +107,7 @@ model Branch {
   reviews       Reviews[]
   favorites     Favorites[]
   exchangeRates ExchangeRate[]
+  businessHours BusinessHours[]
 }
 
 enum Role {
@@ -122,8 +133,8 @@ model User {
   maternal_surname String
   paternal_surname String
   email            String  @unique
-  phone            String?
   role             Role    @default(GUEST)
+  phone            String?
 
   // Relations
   tenantId String?
@@ -145,6 +156,7 @@ model Product {
   // Custom 
   name        String
   description String
+  // baseUnit    BaseUnit @default(piece)
   baseUnit    BaseUnit @default(piece)
   imageUrl    String?
   imageId     String?
@@ -207,6 +219,8 @@ model Favorites {
 }
 
 enum BaseUnit {
+  label
+  size
   piece
   gr
   kg
@@ -215,7 +229,6 @@ enum BaseUnit {
   lb
   oz
   floz
-  size
 }
 
 // 2. Business Categories (Marketplace level)
@@ -301,29 +314,71 @@ model Country {
   name      String
   phoneCode String?
 
-  id     String  @id @default(uuid())
-  states State[]
+  id         String     @id @default(uuid())
+  states     State[]
+  businesses Business[]
 }
 
 model State {
+  // System
+  id String @id @default(uuid())
+
+  // Custom
   code String
   name String
 
-  id          String  @id @default(uuid())
+  // Relations
   countryCode String
-  country     Country @relation(fields: [countryCode], references: [code])
+  country     Country  @relation(fields: [countryCode], references: [code])
   cities      City[]
+  // businesses  Business[]
+  branches    Branch[]
 
   @@index([countryCode])
 }
 
 model City {
+  // System
+  id String @id @default(uuid())
+
+  // Custom
   name String
 
-  id      String @id @default(uuid())
-  stateId String
-  state   State  @relation(fields: [stateId], references: [id])
+  // Relations
+  stateId  String
+  state    State    @relation(fields: [stateId], references: [id])
+  // businesses Business[]
+  branches Branch[]
 
   @@unique([name, stateId])
   @@index([stateId])
+}
+
+model BusinessHours {
+  // System
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Custom
+  dayOfWeek DayOfWeek
+  isOpen    Boolean   @default(true)
+  openTime  String?
+  closeTime String?
+
+  // Relations
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
+
+  @@unique([branchId, dayOfWeek])
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }

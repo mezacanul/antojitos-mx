@@ -29,15 +29,18 @@ export function FinalizarRegistro() {
       userFormData,
       branchFormData,
     };
-    const result = await createBusiness(payload);
-    if (result.error) {
-      console.error(
-        "Error creating business:",
-        result.error
-      );
-      // throw new Error(result.error.message);
-    } else {
-      redirect("/empresas/panel");
+    // return;
+    // console.log("payload:", payload);
+
+    try {
+      const result = await createBusiness(payload);
+      if (result?.success) {
+        console.log("session:", result.session);
+        redirect(result.redirect);
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   });
 

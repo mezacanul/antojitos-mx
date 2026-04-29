@@ -12,6 +12,9 @@ export const defaultBranchFormData: BranchFormType = {
   address: "",
   latitude: "0.0",
   longitude: "0.0",
+  zip: "",
+  cityId: "",
+  stateId: "",
 };
 
 export const useBranchFormStore = create<BranchFormStore>(

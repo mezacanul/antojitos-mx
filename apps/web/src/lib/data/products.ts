@@ -1,14 +1,16 @@
 import { Product } from "@/types";
 import { performAction } from "../api-wrapper";
 
-async function getProductsByBusinessId(
-  businessId: string
-): Promise<Product[]> {
-  const res = await performAction(
-    `/products?businessId=${businessId}`
-  );
-  console.log("res:", res);
-  return res;
+async function getProductsBySession_Categorized(): Promise<
+  Product[] | any[]
+> {
+  try {
+    const res = await performAction(`/products`);
+    return res;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 async function getAllProductCategories(): Promise<any[]> {
@@ -32,7 +34,7 @@ async function getProductCategoryById(
 }
 
 export {
-  getProductsByBusinessId,
+  getProductsBySession_Categorized,
   getAllProductCategories,
   getProductCategoryById,
 };

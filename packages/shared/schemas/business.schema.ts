@@ -12,3 +12,21 @@ export const UpsertBusinessImageDTO = z.object({
       }
     ),
 });
+
+export type UpsertBusinessImageInput = z.infer<
+  typeof UpsertBusinessImageDTO
+>;
+export const UpdateBusinessDTO = z.object({
+  name: z.string().min(2),
+  address: z.string(),
+  zip: z.string(),
+  phone: z.string(),
+  email: z.email(),
+  website: z.url(),
+  timezone: z.string(),
+  rfc: z.string(),
+});
+
+export type UpdateBusinessInput = z.infer<
+  typeof UpdateBusinessDTO
+>;

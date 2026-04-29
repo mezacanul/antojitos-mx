@@ -73,7 +73,7 @@ export type UpdateProductType = z.infer<
 
 export const UpsertProductImageDTO = z.object({
   productId: z.string().min(25).max(25),
-  businessId: z.string().min(25).max(25),
+  // businessId: z.string().min(25).max(25),
   image: z.instanceof(File),
 });
 

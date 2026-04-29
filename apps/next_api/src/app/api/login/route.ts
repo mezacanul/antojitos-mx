@@ -6,16 +6,16 @@ import { handleZodError } from "@/lib/response";
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
-    const validatedData = LoginDTO.parse(json);
-    const { email, password } = validatedData;
-    const session = await authService.login(
-      email,
-      password
-    );
+    // const json = await request.json();
+    // const validatedData = LoginDTO.parse(json);
+    // const { email, password } = validatedData;
+    // const session = await authService.login(
+    //   email,
+    //   password
+    // );
 
-    // return NextResponse.json(session, { status: 200 });
-    return NextResponse.json({ session }, { status: 200 });
+    return NextResponse.json({ message: "Route Test" }, { status: 200 });
+    // return NextResponse.json({ session }, { status: 200 });
   } catch (error: any) {
     return handleZodError(error);
   }

@@ -40,7 +40,7 @@ export default function LoginPage() {
     formData.append("password", data.password);
     const result = await login(formData);
     console.log("Login result:", result);
-    router.push("/");
+    router.push("/explorar");
   });
 
   return (

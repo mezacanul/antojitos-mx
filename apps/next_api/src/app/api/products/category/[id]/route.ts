@@ -10,10 +10,15 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const url = new URL(req.url);
+  const include = url.searchParams.get("includeProducts");
   const { id } = await params;
 
   try {
-    const category = await getProductCategoryById(id);
+    const category = await getProductCategoryById(
+      id,
+      include === "true"
+    );
     return NextResponse.json(category, { status: 200 });
   } catch (error: any) {
     return handleZodError(error);

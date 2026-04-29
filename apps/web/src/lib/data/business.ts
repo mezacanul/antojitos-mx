@@ -2,7 +2,7 @@ import { Business } from "@/types";
 import { performAction } from "../api-wrapper";
 import { createClient } from "../supabase/server";
 
-async function getBusinessByUserId(): Promise<Business> {
+async function getBusinessByUserSession(): Promise<Business> {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
 
@@ -11,11 +11,9 @@ async function getBusinessByUserId(): Promise<Business> {
     throw new Error("Failed to get user ID from session");
   }
 
-  const res = await performAction(
-    `/business?userId=${data.user.id}`
-  );
+  const res = await performAction(`/business`);
   // console.log("res:", res);
   return res;
 }
 
-export { getBusinessByUserId };
+export { getBusinessByUserSession };

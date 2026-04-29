@@ -1,4 +1,3 @@
-import { cn } from "@/utils/cn";
 import { TextInput } from "@/components/Brand/TextInput";
 import { useForm } from "react-hook-form";
 import {
@@ -58,22 +57,10 @@ export function Step1({
         ))}
       </select>
       {errors.category_id && (
-        <p className="text-red-500">
+        <p className="text-red-500 text-xs px-1">
           {errors.category_id.message}
         </p>
       )}
-
-      <TextInput
-        spreadProps={{ ...register("city") }}
-        placeholder="Ciudad"
-        errors={errors.city}
-      />
-
-      <TextInput
-        spreadProps={{ ...register("state") }}
-        placeholder="Estado"
-        errors={errors.state}
-      />
 
       <button
         type="submit"

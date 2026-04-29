@@ -6,19 +6,37 @@ import { prisma } from "@antojitos-mx/db";
 export const getProductsByBusinessId = async (
   businessId: string
 ) => {
-  return await prisma.product.findMany({
-    where: {
-      businessId: businessId,
+  return await prisma.productCategory.findMany({
+    where: { businessId },
+    select: {
+      id: true,
+      name: true,
+      products: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          imageUrl: true,
+          baseUnit: true,
+          productVariants: {
+            select: {
+              name: true,
+            },
+          },
+          prices: {
+            select: {
+              price: true,
+              quantity: true,
+              sizeLabel: true,
+            },
+            orderBy: {
+              price: "asc",
+            },
+          },
+     
+        },
+      },
     },
-  });
-};
-
-export const createProduct = async (
-  productData: any,
-  tx = prisma
-) => {
-  return await tx.product.create({
-    data: productData,
   });
 };
 
@@ -44,10 +62,22 @@ export const createProductCategory = async (
 };
 
 export const getProductCategoryById = async (
-  id: string
+  id: string,
+  includeProducts: boolean = false
 ) => {
+  const selectSchema = {
+    products: {
+      select: {
+        id: true,
+        name: true,
+        prices: true,
+        productVariants: true,
+      },
+    },
+  };
   return await prisma.productCategory.findUnique({
     where: { id: id },
+    select: includeProducts ? selectSchema : undefined,
   });
 };
 

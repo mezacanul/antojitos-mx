@@ -1,37 +1,60 @@
 "use server";
 import { createClient } from "../supabase/server";
 import { performAction } from "../api-wrapper";
+// import { createClient } from "../supabase/client";
 
 export async function createBusiness(payload: any) {
-  // Send payload to API to create business
-  const result = await performAction("/onboarding", {
-    method: "POST",
-    body: JSON.stringify(payload),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  console.log(result);
+  try {
+    // Send payload to API to create business
+    const onboardingResult = await performAction(
+      "/onboarding",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  // Get hashed token from response
-  const { hashed_token, error } = result;
-  // console.log(code, error);
-  if (error) {
-    console.error(error);
-    throw new Error(error.message);
-  }
+    console.log("onboardingResult:", onboardingResult);
+    const {
+      success,
+      user,
+      transaction,
+      error: onboardingError,
+    } = onboardingResult;
 
-  // If business is created successfully,
-  // verify OTP to login user
-  const supabase = await createClient();
-  const { data, error: sessionError } =
-    await supabase.auth.verifyOtp({
-      type: "magiclink",
-      token_hash: hashed_token,
-    });
-  if (sessionError) {
-    console.error(sessionError);
-    throw new Error(sessionError.message);
+    // If business is created successfully,
+    // send user to sign in
+    if (success) {
+      const supabase = await createClient();
+      const signinPayload = {
+        email: user,
+        password: payload.userFormData.password,
+      };
+      const { error: signInError, data: signInData } =
+        await supabase.auth.signInWithPassword(
+          signinPayload
+        );
+
+      // if (signInError) {
+      //   console.error("Error signing in:", signInError);
+      //   throw new Error(signInError.message);
+      // } else {
+      console.log("signInData:", signInData);
+      return {
+        success: true,
+        redirect: "/empresas/panel",
+        session: signInData,
+      };
+      // }
+    }
+  } catch (error) {
+    console.error(
+      "Business creation failed at onboarding service"
+    );
+    console.log(error);
+    throw error;
   }
-  return { data, result, error: sessionError || error };
 }

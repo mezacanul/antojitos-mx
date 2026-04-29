@@ -4,7 +4,6 @@ import { getProductsByBusinessId } from "@/repositories/product.repo";
 import {
   CreateProductDTO,
   Price,
-  ProductCreateInputSchema,
   ProductVariant,
   UpdateProductDTO,
   UpdateProductPricesDTO,
@@ -15,8 +14,9 @@ import {
 import { handleZodError } from "@/lib/response";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const businessId = searchParams.get("businessId");
+  const businessId = req.headers.get(
+    "proxy-business-id"
+  ) as string;
 
   if (!businessId) {
     return NextResponse.json(

@@ -15,8 +15,6 @@ export async function POST(request: Request) {
       user: userFormData,
       branch: {
         ...branchFormData,
-        city: businessFormData.city,
-        state: businessFormData.state,
         latitude: Number(branchFormData.latitude),
         longitude: Number(branchFormData.longitude),
       },

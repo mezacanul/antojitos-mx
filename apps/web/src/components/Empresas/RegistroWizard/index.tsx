@@ -8,8 +8,10 @@ import { FinalizarRegistro } from "./FinalizarRegistro";
 
 export default function RegistroWizard({
   businessCategories,
+  states,
 }: {
   businessCategories: any[];
+  states: any[];
 }) {
   const totalSteps = Titles.wizard.length;
   const [step, setStep] = useState(0);
@@ -38,14 +40,20 @@ export default function RegistroWizard({
       {/* Wizard content */}
       {step > 0 && (
         <div className="flex w-[16rem] flex-col gap-2 justify-center items-center">
+          {/* Datos de la empresa */}
           {step === 1 && (
             <Step1
               businessCategories={businessCategories}
               setStep={setStep}
             />
           )}
+          {/* Datos del usuario */}
           {step === 2 && <Step2 setStep={setStep} />}
-          {step === 3 && <Step3 setStep={setStep} />}
+          {/* Datos de la sucursal */}
+          {step === 3 && (
+            <Step3 states={states} setStep={setStep} />
+          )}
+          {/* Finalizar registro */}
           {step === 4 && <FinalizarRegistro />}
         </div>
       )}
