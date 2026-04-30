@@ -12,7 +12,8 @@ function handleZodError(error: any, props = {}): any {
     return NextResponse.json(
       {
         error: error.message,
-        message: "Error: El producto ya existe",
+        message:
+          "Error: Valores duplicados en la base de datos",
         meta: (error as any).meta ?? null,
         props,
       },
@@ -20,14 +21,16 @@ function handleZodError(error: any, props = {}): any {
     );
   }
 
+  const isZodError = error.name === "ZodError";
   return NextResponse.json(
     {
-      error:
-        error.name === "ZodError"
-          ? JSON.parse(error.message)
-          : error.message,
-      message: "Error: uno o más campos no son válidos",
-      props: props,
+      error: isZodError
+        ? JSON.parse(error.message)
+        : error.message,
+      message: isZodError
+        ? "Error: uno o más campos no son válidos"
+        : "Error en el servidor",
+      // props: props,
     },
     { status: 400 }
   );

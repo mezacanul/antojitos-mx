@@ -30,8 +30,21 @@ export function Step1({
 
   const onSubmit = handleSubmit((data) => {
     console.log(data);
-    setBusinessFormData(data);
-    setStep(2);
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/onboarding?action=isBusinessNameAvailable`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          businessName: data.name,
+        }),
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      });
+    // setBusinessFormData(data);
+    // setStep(2);
   });
 
   return (

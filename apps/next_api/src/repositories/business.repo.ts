@@ -1,4 +1,5 @@
 import { prisma } from "@antojitos-mx/db";
+import { UpdateBusinessInput } from "@antojitos-mx/shared";
 
 export const getBusinessById = (
   businessId: string,
@@ -6,6 +7,9 @@ export const getBusinessById = (
 ) => {
   return tx.business.findUnique({
     where: { id: businessId },
+    include: {
+      categories: true,
+    },
   });
 };
 
@@ -19,7 +23,11 @@ export const getBusinessByUserId = (
       select: {
         tenant: {
           select: {
-            business: true,
+            business: {
+              include: {
+                categories: true, // Include all fields from categories as well
+              },
+            },
           },
         },
       },
@@ -35,13 +43,26 @@ export const getBusinessByUserId = (
 
 export const updateBusinessById = (
   businessId: string,
-  data: any,
+  data: UpdateBusinessInput,
   tx = prisma
 ) => {
-  return tx.business.update({
-    where: { id: businessId },
-    data,
-  });
+  try {
+    const { businessCategories, ...rest } = data;
+    return tx.business.update({
+      where: { id: businessId },
+      data: {
+        ...rest,
+        categories: {
+          set: businessCategories.map((categoryId) => ({
+            id: categoryId,
+          })),
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const deleteBusinessById = (

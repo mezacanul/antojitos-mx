@@ -7,7 +7,7 @@ export async function createBusiness(payload: any) {
   try {
     // Send payload to API to create business
     const onboardingResult = await performAction(
-      "/onboarding",
+      "/onboarding?action=signup",
       {
         method: "POST",
         body: JSON.stringify(payload),

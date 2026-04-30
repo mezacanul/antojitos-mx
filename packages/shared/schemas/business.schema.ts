@@ -25,6 +25,7 @@ export const UpdateBusinessDTO = z.object({
   website: z.url(),
   timezone: z.string(),
   rfc: z.string(),
+  businessCategories: z.array(z.string()),
 });
 
 export type UpdateBusinessInput = z.infer<

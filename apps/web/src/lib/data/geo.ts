@@ -4,7 +4,7 @@ async function getStates(): Promise<any[]> {
   const res = await fetch(
     `${API_URL}/geo?resource=states&parentId=MX`
   ).then((res) => res.json());
-  console.log("getStates res:", res);
+  // console.log("getStates res:", res);
   return res;
 }
 
@@ -12,7 +12,7 @@ async function getCities(stateId: string): Promise<any[]> {
   const res = await fetch(
     `${API_URL}/geo?resource=cities&parentId=${stateId}`
   ).then((res) => res.json());
-  console.log("getCities res:", res);
+  // console.log("getCities res:", res);
   return res;
 }
 

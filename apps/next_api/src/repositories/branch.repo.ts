@@ -1,5 +1,6 @@
 import { prisma } from "@antojitos-mx/db";
 import { CreateBranchDTOType } from "@antojitos-mx/shared";
+// import { BranchUpdateInputSchema } from "@antojitos-mx/shared/generated/zod";
 
 export async function createBranch(
   userRole: string,
@@ -17,15 +18,11 @@ export async function createBranch(
       name: data.name,
       address: data.address,
       zip: data.zip,
-      city: data.city,
-      state: data.state,
+      cityId: data.cityId,
+      stateId: data.stateId,
       latitude: data.latitude,
       longitude: data.longitude,
-      business: {
-        connect: {
-          id: businessId,
-        },
-      },
+      businessId: businessId,
     },
   });
 }
@@ -69,10 +66,78 @@ async function deleteBranchByIdAndBID(
   });
 }
 
+async function createBusinessHours({
+  branchId,
+  businessId,
+  data,
+}: {
+  branchId: string;
+  businessId: string;
+  data: any;
+}) {
+  return await prisma.businessHours.create({
+    data: {
+      ...data,
+      branch: {
+        connect: {
+          id: branchId,
+          businessId: businessId,
+        },
+      },
+    },
+  });
+}
+
+async function getAllBusinessHours(
+  branchId: string,
+  businessId: string
+) {
+  return await prisma.businessHours.findMany({
+    where: {
+      branch: { id: branchId, businessId: businessId },
+    },
+  });
+}
+
+async function updateBusinessHour(
+  branchId: string,
+  businessId: string,
+  businessHourId: string,
+  data: any
+) {
+  return await prisma.businessHours.update({
+    where: {
+      id: businessHourId,
+      branch: {
+        id: branchId,
+        businessId: businessId,
+      },
+    },
+    data,
+  });
+}
+
+async function deleteBusinessHour(
+  branchId: string,
+  businessId: string,
+  businessHourId: string
+) {
+  return await prisma.businessHours.delete({
+    where: {
+      id: businessHourId,
+      branch: { id: branchId, businessId: businessId },
+    },
+  });
+}
+
 export const BranchRepository = {
   getBranchByIdAndBID,
   deleteBranchByIdAndBID,
   updateBranchByIdAndBID,
   createBranch,
   getBranchesByBusinessId,
+  updateBusinessHour,
+  createBusinessHours,
+  getAllBusinessHours,
+  deleteBusinessHour,
 };

@@ -19,7 +19,7 @@ async function getSession() {
     );
   }
   const send = { user, userError, session, sessionError };
-  console.log("getSession", send);
+  // console.log("getSession", send);
   return send;
 }
 

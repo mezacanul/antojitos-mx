@@ -69,10 +69,6 @@ const createBusiness = async (payload: any) => {
         });
         const tenant = await tx.tenant.create({
           data: {
-            // email: payload.user.email,
-            // names: payload.user.names,
-            // paternal_surname: payload.user.paternal_surname,
-            // maternal_surname: payload.user.maternal_surname,
             ...validatedUserForm,
             businessId: business.id,
           },
@@ -80,10 +76,6 @@ const createBusiness = async (payload: any) => {
         const user = await tx.user.create({
           data: {
             id: supabaseUser.id, // Direct mapping to SB UUID
-            // email: payload.user.email,
-            // names: payload.user.names,
-            // paternal_surname: payload.user.paternal_surname,
-            // maternal_surname: payload.user.maternal_surname,
             ...validatedUserForm,
             role: "TENANT_OWNER",
             tenantId: tenant.id,
@@ -99,26 +91,12 @@ const createBusiness = async (payload: any) => {
       }
     );
 
-    // const { data: linkData, error: linkError } =
-    //   await supabaseAdmin.auth.admin.generateLink({
-    //     type: "magiclink",
-    //     email: payload.user.email,
-    //   });
-    // // console.log("linkData", linkData);
-    // // console.log("linkError", linkError);
-
-    // if (linkError) throw new Error(linkError.message);
-    // console.log("linkData", linkData);
-    // const { hashed_token } = linkData.properties;
-
-    // return { hashed_token, ...result };
     return {
       message: "Onboarding successful!",
       transaction: onboardingTransaction,
       success: true,
       user: onboardingTransaction.user.email,
     };
-    // return { success: true, payload };
   } catch (error) {
     // 3. CLEANUP: If we have a Supabase user but the DB failed, delete them.
     if (supabaseUser) {
@@ -131,6 +109,88 @@ const createBusiness = async (payload: any) => {
   }
 };
 
+const testBusinessName = async (payload: any) => {
+  const { businessName } = payload;
+  const business = await prisma.business.findFirst({
+    where: { name: businessName },
+  });
+
+  return business === null;
+};
+
+const testEmail = async (payload: any) => {
+  const { email } = payload;
+  const user = await prisma.user.findFirst({
+    where: { email },
+  });
+  return user === null;
+};
+
+async function verifyUserEmail(code: string) {
+  const gtDate = new Date();
+  // console.log("get", get);
+
+  const verificationCode =
+    await prisma.verificationCode.findFirst({
+      where: {
+        // Verify the code is correct
+        code,
+        // Verify request configuration
+        type: "EMAIL",
+        status: "PENDING",
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      select: {
+        id: true,
+        code: true,
+        expiresAt: true,
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+  if (!verificationCode) {
+    throw new Error("Verification code not found");
+  } else {
+    const updatedVerificationCode =
+      await prisma.verificationCode.update({
+        where: {
+          id: verificationCode.id,
+        },
+        data: {
+          status: "VERIFIED",
+        },
+      });
+    const updatedAccountStatus =
+      await prisma.accountStatus.update({
+        where: {
+          userId_type: {
+            userId: verificationCode.user.id,
+            type: "EMAIL",
+          },
+        },
+        data: {
+          isVerified: true,
+        },
+      });
+    return {
+      message: "Email verified successfully",
+      success: true,
+      // verificationCode,
+      gtDate,
+      updatedVerificationCode,
+      updatedAccountStatus,
+    };
+  }
+}
+
 export const OnboardingService = {
   createBusiness,
+  testBusinessName,
+  testEmail,
+  verifyUserEmail,
 };
