@@ -7,6 +7,7 @@ export default defineConfig({
   schema: "./prisma/schema.prisma",
   migrations: {
     path: "./prisma/migrations",
+    seed: "pnpm dlx tsx --env-file=.env ./prisma/seed/index.ts",
   },
   datasource: {
     url: env("DIRECT_URL"),

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-function handleZodError(error: any, props = {}): any {
+function handleZodError(
+  error: any,
+  props = {},
+  extraHeaders = {}
+): any {
   console.log("error", error);
   const isPrismaKnown =
     typeof error === "object" &&
@@ -17,7 +21,7 @@ function handleZodError(error: any, props = {}): any {
         meta: (error as any).meta ?? null,
         props,
       },
-      { status: 409 }
+      { status: 409, headers: extraHeaders }
     );
   }
 
@@ -32,7 +36,7 @@ function handleZodError(error: any, props = {}): any {
         : "Error en el servidor",
       // props: props,
     },
-    { status: 400 }
+    { status: 400, headers: extraHeaders }
   );
 }
 

@@ -1,7 +1,9 @@
 // apps/next_api/src/services/auth.service.ts
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
 import { createSSR_Client } from "@/utils/supabase/server";
+import { supabaseAdmin } from "@/utils/supabase/service";
 import { prisma } from "@antojitos-mx/db";
+import { createServerClient } from "@supabase/ssr";
 
 async function getSession() {
   const supabase = await createSSR_Client();
@@ -23,23 +25,38 @@ async function getSession() {
   return send;
 }
 
-async function login(email: string, password: string) {
-  // We use the anon key here because we want to initiate a standard user session
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
+async function updateSBUserRole(
+  userId: string,
+  role: string
+) {
+  // const supabase = await createSSR_Client();
   const { data, error } =
-    await supabase.auth.signInWithPassword({
-      email,
-      password,
+    await supabaseAdmin.auth.admin.updateUserById(userId, {
+      app_metadata: {
+        role: role,
+      },
     });
-
   if (error) throw new Error(error.message);
-
-  return data; // This contains your Access Token (JWT)
+  return { data, error };
 }
+
+// async function login(email: string, password: string) {
+//   // We use the anon key here because we want to initiate a standard user session
+//   const supabase = createClient(
+//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+//   );
+
+//   const { data, error } =
+//     await supabase.auth.signInWithPassword({
+//       email,
+//       password,
+//     });
+
+//   if (error) throw new Error(error.message);
+
+//   return data; // This contains your Access Token (JWT)
+// }
 
 async function getTenantBID(tenantId: string) {
   const tenant = await prisma.tenant.findUnique({
@@ -57,7 +74,8 @@ async function getBManagerBID(branchId: string) {
 
 export const authService = {
   getSession,
-  login,
+  // login,
   getTenantBID,
   getBManagerBID,
+  updateSBUserRole,
 };

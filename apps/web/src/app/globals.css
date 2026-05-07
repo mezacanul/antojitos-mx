@@ -126,6 +126,11 @@
     @apply hover:bg-blue-700;
     @apply cursor-pointer;
   }
+
+  .btn-base:disabled {
+    @apply opacity-50;
+    @apply cursor-not-allowed;
+  }
 }
 
 /* Badges */

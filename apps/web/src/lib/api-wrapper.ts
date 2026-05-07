@@ -25,7 +25,7 @@ export async function performAction(
 
   headers.set("Content-Type", "application/json");
 
-  console.log("API_URL:", API_URL);
+  // console.log("API_URL:", API_URL);
 
   // 3. Call your standalone Backend API
   const response = await fetch(`${API_URL}${endpoint}`, {

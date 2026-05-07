@@ -26,7 +26,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const business = await getBusinessByUserSession();
-  console.log("business:", business);
+  console.log("business name:", business.name);
   
   return (
     <html

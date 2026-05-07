@@ -120,8 +120,9 @@ const testBusinessName = async (payload: any) => {
 
 const testEmail = async (payload: any) => {
   const { email } = payload;
+  const lowercaseEmail = email.toLowerCase();
   const user = await prisma.user.findFirst({
-    where: { email },
+    where: { email: lowercaseEmail },
   });
   return user === null;
 };

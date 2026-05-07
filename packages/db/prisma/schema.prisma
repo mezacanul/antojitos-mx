@@ -135,6 +135,7 @@ model User {
   email            String  @unique
   role             Role    @default(GUEST)
   phone            String?
+  imageUrl         String?
 
   // Relations
   tenantId String?

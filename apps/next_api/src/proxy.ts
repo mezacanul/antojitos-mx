@@ -11,10 +11,13 @@ export async function proxy(request: NextRequest) {
 
   // 1. Skip middleware for unprotected API endpoints
   const isUnprotectedApi =
+    pathname.startsWith("/api/dev") ||
     pathname.startsWith("/api/onboarding") ||
     pathname.startsWith("/api/geo") ||
     pathname.startsWith("/api/signup") ||
     pathname.startsWith("/api/login") ||
+    // pathname.startsWith("/api/guests/protected") ||
+    pathname.startsWith("/api/guests/public") ||
     pathname.startsWith("/api/catalogs");
 
   if (isUnprotectedApi) {
